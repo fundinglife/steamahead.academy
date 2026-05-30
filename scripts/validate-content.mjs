@@ -1,6 +1,7 @@
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import generatedIxl from "../src/data/generated/ixlPublicPages.json" with { type: "json" };
 
 const root = new URL("../", import.meta.url);
 const contentRoot = new URL("src/content/", root);
@@ -69,4 +70,8 @@ if (failures.length) {
   process.exit(1);
 }
 
+const generatedSkillPages = generatedIxl.pages.filter((page) => page.skillSections?.some((section) => section.skills?.length));
+const generatedSkillCount = generatedSkillPages.reduce((pageTotal, page) => pageTotal + page.skillSections.reduce((sectionTotal, section) => sectionTotal + section.skills.length, 0), 0);
+
 console.log(`Validated ${gradeFiles.length} grade pathway(s) and ${conceptFiles.length} concept file(s).`);
+console.log(`Validated generated public inventory: ${generatedIxl.pages.length} routes, ${generatedSkillPages.length} skill-index pages, ${generatedSkillCount} skill links.`);

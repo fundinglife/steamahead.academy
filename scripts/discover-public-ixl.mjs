@@ -111,6 +111,32 @@ function extractMathIndex(html) {
   return sections;
 }
 
+function extractSkillSections(html, currentPath) {
+  const sections = [];
+  const categoryPattern = /<div[^>]*class=["'][^"']*(?:skill-tree-category|skill-tree-supercategory-category)[^"']*["'][^>]*>([\s\S]*?)(?=<div[^>]*class=["'][^"']*(?:skill-tree-category|skill-tree-supercategory-category)[^"']*["'][^>]*>|<\/section>)/gi;
+  for (const categoryMatch of html.matchAll(categoryPattern)) {
+    const block = categoryMatch[1];
+    const heading = block.match(/<h2[^>]*class=["'][^"']*category-code-and-name[^"']*["'][^>]*>([\s\S]*?)<\/h2>/i);
+    const simpleHeading = block.match(/<h2[^>]*class=["'][^"']*skill-tree-skills-header[^"']*["'][^>]*>([\s\S]*?)<\/h2>/i);
+    if (!heading && !simpleHeading) continue;
+    const code = heading ? stripTags(heading[1].match(/<span[^>]*class=["'][^"']*category-code[^"']*["'][^>]*>([\s\S]*?)<\/span>/i)?.[1] ?? "") : "";
+    const title = heading
+      ? stripTags(heading[1].match(/<span[^>]*class=["'][^"']*category-name[^"']*["'][^>]*>([\s\S]*?)<\/span>/i)?.[1] ?? "")
+      : stripTags(simpleHeading[1]);
+    const skills = [];
+    const skillPattern = /<a\b[^>]*href=["']([^"']+)["'][^>]*class=["'][^"']*skill-tree-skill-link[^"']*["'][^>]*>([\s\S]*?)<\/a>/gi;
+    for (const skillMatch of block.matchAll(skillPattern)) {
+      const path = sameSitePath(skillMatch[1]);
+      if (!path || !path.startsWith(`${currentPath}/`)) continue;
+      const label = stripTags(skillMatch[2]);
+      if (!label) continue;
+      skills.push({ label, path });
+    }
+    if (title || skills.length) sections.push({ code, title, skills });
+  }
+  return sections;
+}
+
 async function fetchPage(path) {
   const response = await fetch(`${base}${path}`, { headers: { "user-agent": userAgent } });
   if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
@@ -136,8 +162,9 @@ while (queue.length && pages.length < maxPages) {
       title,
       navGroup: classify(path),
       sourceUrl: `${base}${path}`,
-      links: links.slice(0, 120),
-      mathSections: path === "/math" ? extractMathIndex(html) : []
+      links,
+      mathSections: path === "/math" ? extractMathIndex(html) : [],
+      skillSections: extractSkillSections(html, path)
     };
     pages.push(page);
     for (const link of links) {
