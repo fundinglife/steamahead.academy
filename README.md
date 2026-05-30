@@ -16,6 +16,16 @@ Each page can store an `ixlReferenceTitle` for cross-reference. Content is origi
 
 `npm run validate:content` checks that any grade pathway with `sourceConceptCount` has the same number of `equivalentConceptSlugs`, and that every referenced concept file exists.
 
+## Public Route Discovery
+
+`npm run discover:ixl` crawls public `ixl.com` routes from seeded public pages and writes `src/data/generated/ixlPublicPages.json`. Astro uses that generated inventory to create matching local routes with source titles, source route references, and discovered internal links.
+
+To expand the crawl:
+
+```bash
+IXL_DISCOVERY_LIMIT=1000 npm run discover:ixl
+```
+
 ## Commands
 
 ```bash

@@ -8,6 +8,7 @@
     "build": "npm run validate:content && astro check && astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "discover:ixl": "node scripts/discover-public-ixl.mjs",
     "validate:content": "node scripts/validate-content.mjs"
   },
   "dependencies": {
