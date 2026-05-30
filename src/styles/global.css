@@ -76,4 +76,8 @@
   .structured-content a {
     @apply font-bold text-ocean-700 underline decoration-ocean-100 underline-offset-4 hover:decoration-ocean-500;
   }
+
+  .practice-engine button:focus-visible {
+    @apply outline outline-4 outline-offset-2 outline-ocean-100;
+  }
 }

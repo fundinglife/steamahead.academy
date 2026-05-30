@@ -2,6 +2,8 @@
 import { getCollection, render } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import MarkdownCard from "@/components/MarkdownCard.astro";
+import PracticeEngine from "@/components/PracticeEngine.astro";
+import { buildExerciseSet } from "@/lib/exercises";
 import generatedIxl from "@/data/generated/ixlPublicPages.json";
 
 interface SourceLink {
@@ -73,6 +75,7 @@ const isSubjectIndex = ["/math", "/ela", "/science", "/social-studies"].includes
 const isSpanishIndex = sourcePath === "/spanish";
 const authoredLinks = ((entry?.data.links ?? []) as ContentLink[]);
 const hasAuthoredLinkDescriptions = authoredLinks.some((link) => link.description);
+const exerciseSet = sourcePage ? buildExerciseSet(sourcePage) : undefined;
 
 function isUsefulTitle(label: string) {
   return label.length > 1 && !label.startsWith("See all") && !["Videos", "Games", "Skills"].includes(label);
@@ -181,7 +184,8 @@ const sidebarLinks = [
       </div>
     </section>
   )}
-  {landingGroups.length === 0 && !isSpanishIndex && <section class="py-12">
+  {exerciseSet && <PracticeEngine exerciseSet={exerciseSet} />}
+  {landingGroups.length === 0 && !isSpanishIndex && !exerciseSet && <section class="py-12">
     <div class="page-shell grid grid-cols-[minmax(0,1fr)_280px] items-start gap-8 max-lg:grid-cols-1">
       <div>
         {hasAuthoredLinkDescriptions && (

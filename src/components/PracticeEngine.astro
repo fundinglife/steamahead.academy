@@ -1,0 +1,148 @@
+---
+import type { ExerciseSet } from "@/lib/exercises";
+
+const { exerciseSet } = Astro.props as { exerciseSet: ExerciseSet };
+const payloadId = `practice-data-${exerciseSet.route.replace(/[^a-z0-9]+/gi, "-")}`;
+---
+
+<section class="bg-white py-12">
+  <div class="page-shell">
+    <div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+      <div>
+        <p class="text-sm font-black uppercase tracking-widest text-leaf-700">{exerciseSet.mode}</p>
+        <h2 class="mt-2 text-3xl font-black text-ocean-700">Interactive practice</h2>
+        <p class="mt-2 max-w-3xl text-slate-600">{exerciseSet.summary}</p>
+      </div>
+      <div class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-black text-ocean-700">
+        <span data-practice-progress>Question 1 of {exerciseSet.questions.length}</span>
+      </div>
+    </div>
+
+    <div class="practice-engine rounded-xl border border-slate-200 bg-ocean-50 p-5 shadow-sm" data-practice-engine data-payload-id={payloadId}>
+      <div class="grid grid-cols-[minmax(0,1fr)_220px] gap-5 max-lg:grid-cols-1">
+        <article class="rounded-lg bg-white p-6 shadow-sm">
+          <p class="text-sm font-black uppercase tracking-widest text-slate-400" data-practice-instruction></p>
+          <h3 class="mt-3 text-3xl font-black text-ocean-700 max-sm:text-2xl" data-practice-prompt></h3>
+          <div class="mt-6 min-h-28 rounded-lg border border-dashed border-ocean-100 bg-slate-50 p-5 text-center text-6xl leading-relaxed tracking-wide text-ocean-700 max-sm:text-4xl" data-practice-visual></div>
+          <div class="mt-6 grid grid-cols-3 gap-3 max-sm:grid-cols-1" data-practice-choices></div>
+          <div class="mt-5 hidden rounded-lg border p-4 text-sm font-bold" data-practice-feedback></div>
+        </article>
+        <aside class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+          <h3 class="text-sm font-black uppercase tracking-widest text-leaf-700">Session</h3>
+          <dl class="mt-4 grid gap-3 text-sm">
+            <div class="rounded-md bg-slate-50 p-3">
+              <dt class="font-black text-ocean-700">Score</dt>
+              <dd class="mt-1 text-slate-600"><span data-practice-score>0</span> correct</dd>
+            </div>
+            <div class="rounded-md bg-slate-50 p-3">
+              <dt class="font-black text-ocean-700">Streak</dt>
+              <dd class="mt-1 text-slate-600"><span data-practice-streak>0</span> in a row</dd>
+            </div>
+          </dl>
+          <button type="button" class="button-secondary mt-5 w-full" data-practice-reset>Reset practice</button>
+        </aside>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script is:inline type="application/json" id={payloadId} set:html={JSON.stringify(exerciseSet)} />
+
+<script>
+  const engines = document.querySelectorAll("[data-practice-engine]");
+
+  engines.forEach((engine) => {
+    const payloadId = engine.getAttribute("data-payload-id");
+    const payload = payloadId ? document.getElementById(payloadId)?.textContent : "";
+    if (!payload) return;
+
+    const exerciseSet = JSON.parse(payload);
+    const questions = exerciseSet.questions ?? [];
+    let index = 0;
+    let score = 0;
+    let streak = 0;
+    let answered = false;
+
+    const root = engine.closest("section") ?? document;
+    const progress = root.querySelector("[data-practice-progress]");
+    const instruction = engine.querySelector("[data-practice-instruction]");
+    const prompt = engine.querySelector("[data-practice-prompt]");
+    const visual = engine.querySelector("[data-practice-visual]");
+    const choices = engine.querySelector("[data-practice-choices]");
+    const feedback = engine.querySelector("[data-practice-feedback]");
+    const scoreEl = engine.querySelector("[data-practice-score]");
+    const streakEl = engine.querySelector("[data-practice-streak]");
+    const reset = engine.querySelector("[data-practice-reset]");
+
+    function setText(target: Element | null, value: string) {
+      if (target) target.textContent = value;
+    }
+
+    function render() {
+      const question = questions[index];
+      if (!question) return;
+      answered = false;
+      setText(progress, `Question ${index + 1} of ${questions.length}`);
+      setText(instruction, question.instruction);
+      setText(prompt, question.prompt);
+      setText(visual, question.visual ?? "");
+      if (visual) visual.classList.toggle("hidden", !question.visual);
+      if (feedback) {
+        feedback.className = "mt-5 hidden rounded-lg border p-4 text-sm font-bold";
+        feedback.textContent = "";
+      }
+      if (choices) {
+        choices.innerHTML = "";
+        question.choices.forEach((choice: { label: string; value: string | number; visual?: string }) => {
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "min-h-20 rounded-lg border-2 border-slate-200 bg-white p-4 text-center text-2xl font-black text-ocean-700 shadow-sm transition hover:border-ocean-500 hover:bg-ocean-50";
+          button.dataset.value = String(choice.value);
+          button.innerHTML = choice.visual
+            ? `<span class="block text-4xl leading-relaxed">${choice.visual}</span><span class="mt-2 block text-sm text-slate-500">${choice.label}</span>`
+            : choice.label;
+          button.addEventListener("click", () => answer(choice.value, button));
+          choices.appendChild(button);
+        });
+      }
+      setText(scoreEl, String(score));
+      setText(streakEl, String(streak));
+    }
+
+    function answer(value: string | number, button: HTMLButtonElement) {
+      if (answered) return;
+      answered = true;
+      const question = questions[index];
+      const correct = String(value) === String(question.answer);
+      if (correct) {
+        score += 1;
+        streak += 1;
+        button.classList.add("border-leaf-500", "bg-green-50");
+      } else {
+        streak = 0;
+        button.classList.add("border-red-400", "bg-red-50");
+      }
+      setText(scoreEl, String(score));
+      setText(streakEl, String(streak));
+      if (feedback) {
+        feedback.className = correct
+          ? "mt-5 rounded-lg border border-green-200 bg-green-50 p-4 text-sm font-bold text-green-800"
+          : "mt-5 rounded-lg border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-800";
+        feedback.textContent = correct ? `Correct. ${question.explanation}` : `Not yet. ${question.explanation}`;
+      }
+      window.setTimeout(() => {
+        index = (index + 1) % questions.length;
+        render();
+      }, correct ? 1100 : 1800);
+    }
+
+    reset?.addEventListener("click", () => {
+      index = 0;
+      score = 0;
+      streak = 0;
+      render();
+    });
+
+    render();
+  });
+</script>
