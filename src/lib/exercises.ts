@@ -50,7 +50,23 @@ function range(max: number) {
   return Array.from({ length: max }, (_, index) => index + 1);
 }
 
+function practiceNumbers(max: number) {
+  if (max <= 20) return range(max);
+  const values = new Set([1, 10, 25, 50, 100, max].filter((value) => value <= max));
+  return [...values].sort((a, b) => a - b).slice(0, 6);
+}
+
 function choicesForNumbers(max: number, answer: number): ExerciseChoice[] {
+  if (max > 20) {
+    const options = new Set<number>([answer]);
+    [answer - 10, answer - 1, answer + 1, answer + 10, Math.floor(answer / 10) * 10].forEach((value) => {
+      if (value >= 0 && value <= max) options.add(value);
+    });
+    for (let value = Math.max(0, answer - 3); options.size < 4 && value <= max; value += 1) {
+      options.add(value);
+    }
+    return [...options].sort((a, b) => a - b).slice(0, 4).map((value) => ({ label: String(value), value }));
+  }
   const values = range(max);
   if (!values.includes(answer)) values.push(answer);
   return values
@@ -64,7 +80,7 @@ function objectVisual(count: number, offset = 0) {
 }
 
 function countObjectsQuestions(route: string, max: number): ExerciseQuestion[] {
-  return range(max).map((answer, index) => ({
+  return practiceNumbers(max).map((answer, index) => ({
     id: `${route}-count-${answer}`,
     prompt: "How many objects are shown?",
     instruction: "Count each object once, then choose the matching number.",
@@ -77,7 +93,7 @@ function countObjectsQuestions(route: string, max: number): ExerciseQuestion[] {
 }
 
 function identifyNumberQuestions(route: string, max: number): ExerciseQuestion[] {
-  return range(max).map((answer) => ({
+  return practiceNumbers(max).map((answer) => ({
     id: `${route}-identify-${answer}`,
     prompt: `Which choice shows the number ${answer}?`,
     instruction: "Look at each numeral and pick the one that matches the number named in the question.",
@@ -89,7 +105,7 @@ function identifyNumberQuestions(route: string, max: number): ExerciseQuestion[]
 }
 
 function chooseSetQuestions(route: string, max: number): ExerciseQuestion[] {
-  return range(max).map((answer, index) => ({
+  return practiceNumbers(max).map((answer, index) => ({
     id: `${route}-set-${answer}`,
     prompt: `Which set has ${answer} ${answer === 1 ? "item" : "items"}?`,
     instruction: "Count the objects in each answer choice.",
@@ -342,12 +358,156 @@ function subtractionQuestions(route: string, max: number): ExerciseQuestion[] {
   }));
 }
 
+function multiplicationQuestions(route: string): ExerciseQuestion[] {
+  return [
+    [2, 3],
+    [4, 5],
+    [6, 3],
+    [7, 8]
+  ].map(([a, b], index) => ({
+    id: `${route}-multiply-${index}`,
+    prompt: `What is ${a} x ${b}?`,
+    instruction: "Use equal groups or facts to find the product.",
+    type: "choice",
+    answer: a * b,
+    choices: choicesForNumbers(100, a * b),
+    visual: `${a} groups of ${b}`,
+    explanation: `${a} groups of ${b} equals ${a * b}.`
+  }));
+}
+
+function divisionQuestions(route: string): ExerciseQuestion[] {
+  return [
+    [12, 3],
+    [20, 5],
+    [18, 6],
+    [32, 8]
+  ].map(([total, groups], index) => ({
+    id: `${route}-divide-${index}`,
+    prompt: `What is ${total} divided by ${groups}?`,
+    instruction: "Split the total into equal groups.",
+    type: "choice",
+    answer: total / groups,
+    choices: choicesForNumbers(20, total / groups),
+    visual: `${total} objects split into ${groups} equal groups`,
+    explanation: `${total} divided by ${groups} is ${total / groups}.`
+  }));
+}
+
+function placeValueQuestions(route: string, title: string): ExerciseQuestion[] {
+  const lower = title.toLowerCase();
+  if (lower.includes("digit")) {
+    return [
+      namedChoiceQuestion(route, "hundreds-digit", "In 348, which digit is in the hundreds place?", "3", ["3", "4", "8"], "The hundreds place is the third digit from the right."),
+      namedChoiceQuestion(route, "tens-digit", "In 348, which digit is in the tens place?", "4", ["3", "4", "8"], "The tens place is the second digit from the right.")
+    ];
+  }
+  if (lower.includes("expanded")) {
+    return [namedChoiceQuestion(route, "expanded", "Which is expanded form for 462?", "400 + 60 + 2", ["400 + 60 + 2", "40 + 6 + 2", "4 + 6 + 2"], "462 has 4 hundreds, 6 tens, and 2 ones.")];
+  }
+  return [
+    namedChoiceQuestion(route, "base-ten", "What number is 3 tens and 5 ones?", "35", ["35", "53", "305"], "3 tens is 30, and 5 ones makes 35."),
+    namedChoiceQuestion(route, "value", "What is the value of the 7 in 274?", "70", ["7", "70", "700"], "The 7 is in the tens place, so its value is 70.")
+  ];
+}
+
+function numberLineQuestions(route: string, max: number): ExerciseQuestion[] {
+  const limit = Math.max(10, max);
+  return [
+    {
+      id: `${route}-line-next`,
+      prompt: "What number is missing on the number line?",
+      instruction: "Count forward by the same amount.",
+      type: "choice",
+      answer: 40,
+      choices: choicesForNumbers(limit, 40),
+      visual: "10 -- 20 -- 30 -- __ -- 50",
+      explanation: "The number line counts by tens, so the missing number is 40."
+    },
+    {
+      id: `${route}-line-between`,
+      prompt: "Which number is between 24 and 26?",
+      instruction: "Look for the whole number that comes between the two numbers.",
+      type: "choice",
+      answer: 25,
+      choices: choicesForNumbers(limit, 25),
+      visual: "24 -- __ -- 26",
+      explanation: "25 comes between 24 and 26."
+    }
+  ];
+}
+
+function fractionQuestions(route: string, title: string): ExerciseQuestion[] {
+  const lower = title.toLowerCase();
+  if (lower.includes("equivalent")) {
+    return [namedChoiceQuestion(route, "equivalent", "Which fraction is equivalent to 1/2?", "2/4", ["2/4", "1/3", "3/5"], "2 of 4 equal parts is the same amount as 1 of 2 equal parts.")];
+  }
+  if (lower.includes("compare")) {
+    return [namedChoiceQuestion(route, "compare-fractions", "Which fraction is greater?", "3/4", ["3/4", "1/4", "1/2"], "3 fourths is greater than 1 fourth and greater than 1 half.")];
+  }
+  return [
+    namedChoiceQuestion(route, "fraction-bars", "What fraction of the bar is shaded?", "1/2", ["1/2", "1/3", "2/3"], "One of two equal parts is shaded.", "[ shaded ][ empty ]"),
+    namedChoiceQuestion(route, "unit-fraction", "Which fraction names one out of four equal parts?", "1/4", ["1/4", "4/1", "3/4"], "One out of four equal parts is 1/4.")
+  ];
+}
+
+function timeQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "clock-hour", "What time is shown?", "3:00", ["3:00", "12:03", "6:00"], "The hour hand points to 3 and the minute hand points to 12.", "hour hand: 3, minute hand: 12"),
+    namedChoiceQuestion(route, "clock-half", "What time is half past 7?", "7:30", ["7:30", "6:30", "7:00"], "Half past means 30 minutes after the hour.")
+  ];
+}
+
+function dataQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "line-plot", "How many Xs are above 4?", "3", ["1", "2", "3"], "There are three marks above 4.", "3: XX  4: XXX  5: X"),
+    namedChoiceQuestion(route, "bar-graph", "Which category has the most votes?", "blue", ["red", "blue", "green"], "Blue has the tallest bar.", "red: 3 | blue: 5 | green: 2")
+  ];
+}
+
+function algebraQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "missing-addend", "What number makes 8 + __ = 13 true?", "5", ["4", "5", "6"], "8 plus 5 equals 13."),
+    namedChoiceQuestion(route, "variable", "If x + 4 = 10, what is x?", "6", ["4", "6", "14"], "Subtract 4 from 10 to get 6.")
+  ];
+}
+
 function languageArtsQuestions(route: string, title: string): ExerciseQuestion[] {
   const lower = title.toLowerCase();
+  if (lower.includes("sight words") || lower.includes("sight word")) {
+    return [
+      namedChoiceQuestion(route, "sight-word-read", "Which word is the sight word after?", "after", ["after", "again", "around"], "The word after is spelled a-f-t-e-r."),
+      namedChoiceQuestion(route, "sight-word-sentence", "Choose the word that completes the sentence: We went home __ school.", "after", ["after", "blue", "jump"], "After tells when we went home.")
+    ];
+  }
+  if (lower.includes("lowercase")) {
+    return [
+      namedChoiceQuestion(route, "lowercase-match", "Which lowercase letter matches A?", "a", ["a", "b", "d"], "The lowercase form of A is a."),
+      namedChoiceQuestion(route, "lowercase-shape", "Which letter is lowercase b?", "b", ["b", "d", "p"], "Lowercase b has a tall line and a bump on the right.")
+    ];
+  }
+  if (lower.includes("uppercase")) {
+    return [
+      namedChoiceQuestion(route, "uppercase-match", "Which uppercase letter matches m?", "M", ["M", "N", "W"], "The uppercase form of m is M."),
+      namedChoiceQuestion(route, "uppercase-shape", "Which letter is uppercase T?", "T", ["T", "F", "L"], "Uppercase T has a top line and a middle stem.")
+    ];
+  }
   if (lower.includes("letter") || lower.includes("alphabet")) {
     return [
       namedChoiceQuestion(route, "letter-a", "Which choice is the letter A?", "A", ["A", "B", "C"], "The uppercase letter A is A."),
       namedChoiceQuestion(route, "letter-b", "Which choice is the letter b?", "b", ["d", "b", "p"], "The lowercase letter b has a tall line and a bump on the right.")
+    ];
+  }
+  if (lower.includes("short vowel") || lower.includes("short a") || lower.includes("short e") || lower.includes("short i") || lower.includes("short o") || lower.includes("short u") || lower.includes("short-a") || lower.includes("short-e") || lower.includes("short-i") || lower.includes("short-o") || lower.includes("short-u")) {
+    return [
+      namedChoiceQuestion(route, "short-vowel", "Which word has the short a sound?", "cat", ["cat", "cake", "cube"], "Cat has the short a sound."),
+      namedChoiceQuestion(route, "complete-short-vowel", "Complete the word: c_t", "a", ["a", "e", "o"], "The word cat uses short a.")
+    ];
+  }
+  if (lower.includes("long vowel") || lower.includes("long a") || lower.includes("long e") || lower.includes("long i") || lower.includes("long o") || lower.includes("long u") || lower.includes("silent e") || lower.includes("vowel team")) {
+    return [
+      namedChoiceQuestion(route, "long-vowel", "Which word has a long a sound?", "cake", ["cake", "cat", "cup"], "Cake has a long a sound."),
+      namedChoiceQuestion(route, "vowel-team", "Which word has the vowel team ea?", "team", ["team", "top", "tap"], "Team uses the vowel team ea.")
     ];
   }
   if (lower.includes("rhyme")) {
@@ -356,10 +516,19 @@ function languageArtsQuestions(route: string, title: string): ExerciseQuestion[]
   if (lower.includes("sound") || lower.includes("begins") || lower.includes("starts")) {
     return [namedChoiceQuestion(route, "sound", "Which word starts with /m/?", "moon", ["sun", "moon", "fish"], "Moon starts with the /m/ sound.")];
   }
-  if (lower.includes("sentence") || lower.includes("grammar") || lower.includes("noun") || lower.includes("verb")) {
+  if (lower.includes("synonym")) {
+    return [namedChoiceQuestion(route, "synonym", "Which word means the same as big?", "large", ["large", "tiny", "late"], "Large and big have similar meanings.")];
+  }
+  if (lower.includes("antonym")) {
+    return [namedChoiceQuestion(route, "antonym", "Which word means the opposite of hot?", "cold", ["cold", "warm", "heat"], "Cold is the opposite of hot.")];
+  }
+  if (lower.includes("context")) {
+    return [namedChoiceQuestion(route, "context", "Use context: The desert was arid, with almost no rain. What does arid mean?", "dry", ["dry", "crowded", "loud"], "Almost no rain is a clue that arid means dry.")];
+  }
+  if (lower.includes("sentence") || lower.includes("grammar") || lower.includes("noun") || lower.includes("verb") || lower.includes("pronoun") || lower.includes("adjective") || lower.includes("punctuation")) {
     return [namedChoiceQuestion(route, "grammar", "Which word is a noun?", "dog", ["run", "dog", "blue"], "Dog names a thing, so it is a noun.")];
   }
-  if (lower.includes("book") || lower.includes("story") || lower.includes("text")) {
+  if (lower.includes("book") || lower.includes("story") || lower.includes("text") || lower.includes("plot") || lower.includes("main idea") || lower.includes("inference")) {
     return [namedChoiceQuestion(route, "reading", "Which part of a book tells the name of the book?", "title", ["title", "page number", "period"], "The title tells the name of the book.")];
   }
   return [
@@ -406,8 +575,15 @@ function spanishQuestions(route: string, title: string): ExerciseQuestion[] {
   if (lower.includes("number") || /\b0-10\b|\b11-20\b|\b21-31\b/.test(lower)) {
     return [
       namedChoiceQuestion(route, "uno", "What does uno mean?", "one", ["one", "two", "three"], "Uno means one."),
-      namedChoiceQuestion(route, "dos", "What does dos mean?", "two", ["one", "two", "ten"], "Dos means two.")
+      namedChoiceQuestion(route, "dos", "What does dos mean?", "two", ["one", "two", "ten"], "Dos means two."),
+      namedChoiceQuestion(route, "diez", "What does diez mean?", "ten", ["six", "ten", "twenty"], "Diez means ten.")
     ];
+  }
+  if (lower.includes("noun") || lower.includes("gender") || lower.includes("plural")) {
+    return [namedChoiceQuestion(route, "noun-gender", "Which article usually goes with libro?", "el", ["el", "la", "las"], "Libro is usually masculine, so it uses el.")];
+  }
+  if (lower.includes("verb") || lower.includes("ser") || lower.includes("estar") || lower.includes("tener")) {
+    return [namedChoiceQuestion(route, "verb", "Complete the sentence: Yo __ estudiante.", "soy", ["soy", "eres", "son"], "Yo uses soy with ser.")];
   }
   if (lower.includes("alphabet")) {
     return [namedChoiceQuestion(route, "alphabet", "Which letter name is Spanish?", "a", ["a", "apple", "after"], "The Spanish alphabet includes the letter a.")];
@@ -421,9 +597,31 @@ function spanishQuestions(route: string, title: string): ExerciseQuestion[] {
   return [namedChoiceQuestion(route, "spanish", "Choose the Spanish word.", "hola", ["hola", "hello", "chair"], "Hola is a Spanish greeting.")];
 }
 
+function languageArtsMode(title: string) {
+  const lower = title.toLowerCase();
+  if (lower.includes("sight word")) return "Sight words";
+  if (lower.includes("lowercase") || lower.includes("uppercase") || lower.includes("letter") || lower.includes("alphabet")) return "Letter recognition";
+  if (lower.includes("short vowel") || lower.includes("short a") || lower.includes("short e") || lower.includes("short i") || lower.includes("short o") || lower.includes("short u") || lower.includes("long vowel") || lower.includes("long a") || lower.includes("long e") || lower.includes("long i") || lower.includes("long o") || lower.includes("long u") || lower.includes("silent e") || lower.includes("vowel team")) return "Phonics";
+  if (lower.includes("rhyme") || lower.includes("sound") || lower.includes("begins") || lower.includes("starts")) return "Phonological awareness";
+  if (lower.includes("synonym") || lower.includes("antonym") || lower.includes("context")) return "Vocabulary";
+  if (lower.includes("sentence") || lower.includes("noun") || lower.includes("verb") || lower.includes("pronoun") || lower.includes("adjective")) return "Grammar";
+  if (lower.includes("story") || lower.includes("text") || lower.includes("plot") || lower.includes("main idea") || lower.includes("inference")) return "Reading comprehension";
+  return "Language arts practice";
+}
+
+function spanishMode(title: string) {
+  const lower = title.toLowerCase();
+  if (lower.includes("number") || /\b0-10\b|\b11-20\b|\b21-31\b/.test(lower)) return "Spanish numbers";
+  if (lower.includes("noun") || lower.includes("gender") || lower.includes("plural")) return "Spanish nouns";
+  if (lower.includes("verb") || lower.includes("ser") || lower.includes("estar") || lower.includes("tener")) return "Spanish verbs";
+  if (lower.includes("color")) return "Spanish colors";
+  if (lower.includes("day") || lower.includes("week")) return "Spanish calendar";
+  return "Spanish practice";
+}
+
 function nonMathExerciseSet(route: string, title: string): ExerciseSet {
   if (route.startsWith("/ela/")) {
-    return { route, title, mode: "Language arts practice", summary: "Practice reading, writing, vocabulary, grammar, or comprehension with short questions.", questions: languageArtsQuestions(route, title) };
+    return { route, title, mode: languageArtsMode(title), summary: "Practice reading, writing, vocabulary, grammar, or comprehension with short questions.", questions: languageArtsQuestions(route, title) };
   }
   if (route.startsWith("/science/")) {
     return { route, title, mode: "Science practice", summary: "Practice science ideas with evidence-based questions.", questions: scienceQuestions(route, title) };
@@ -432,14 +630,14 @@ function nonMathExerciseSet(route: string, title: string): ExerciseSet {
     return { route, title, mode: "Social studies practice", summary: "Practice civics, geography, history, economics, and culture concepts.", questions: socialStudiesQuestions(route, title) };
   }
   if (route.startsWith("/spanish/")) {
-    return { route, title, mode: "Spanish practice", summary: "Practice Spanish vocabulary, grammar, and context skills.", questions: spanishQuestions(route, title) };
+    return { route, title, mode: spanishMode(title), summary: "Practice Spanish vocabulary, grammar, and context skills.", questions: spanishQuestions(route, title) };
   }
   return { route, title, mode: "Skill practice", summary: "Practice this skill with short, checkable questions.", questions: genericChoiceQuestions(route, title) };
 }
 
 function maxFromRoute(route: string, title: string) {
   const match = `${route} ${title}`.match(/up-to-(\d+)|up to (\d+)/i);
-  return Math.min(Number(match?.[1] ?? match?.[2] ?? 5), 20);
+  return Math.min(Number(match?.[1] ?? match?.[2] ?? 20), 1000);
 }
 
 export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | undefined {
@@ -459,7 +657,39 @@ export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | unde
   let summary = "Practice this skill with short, checkable questions.";
   let questions: ExerciseQuestion[] | undefined;
 
-  if (lower.includes("identify-numbers") || lower.includes("identify numbers")) {
+  if (lower.includes("clock") || lower.includes("time") || lower.includes("hour") || lower.includes("minute")) {
+    mode = "Time";
+    summary = "Practice reading clocks and matching times.";
+    questions = timeQuestions(route);
+  } else if (lower.includes("number-line") || lower.includes("number line") || lower.includes("hundred-chart") || lower.includes("hundred chart")) {
+    mode = "Number lines and charts";
+    summary = "Practice locating, ordering, and counting numbers on lines and charts.";
+    questions = numberLineQuestions(route, max);
+  } else if (lower.includes("place-value") || lower.includes("place value") || lower.includes("expanded-form") || lower.includes("expanded form") || lower.includes("digit")) {
+    mode = "Place value";
+    summary = "Practice reading digits, values, models, and expanded form.";
+    questions = placeValueQuestions(route, title);
+  } else if (lower.includes("fraction")) {
+    mode = "Fractions";
+    summary = "Practice naming, modeling, and comparing fractions.";
+    questions = fractionQuestions(route, title);
+  } else if (lower.includes("line-plot") || lower.includes("line plot") || lower.includes("bar-graph") || lower.includes("bar graph") || lower.includes("data") || lower.includes("graph")) {
+    mode = "Data and graphs";
+    summary = "Practice reading data displays and answering graph questions.";
+    questions = dataQuestions(route);
+  } else if (lower.includes("multiplication") || lower.includes("multiply") || lower.includes("times table") || lower.includes("facts-up-to")) {
+    mode = "Multiplication";
+    summary = "Practice equal groups, arrays, and multiplication facts.";
+    questions = multiplicationQuestions(route);
+  } else if (lower.includes("division") || lower.includes("divide")) {
+    mode = "Division";
+    summary = "Practice equal sharing, equal groups, and division facts.";
+    questions = divisionQuestions(route);
+  } else if ((lower.includes("variable") || lower.includes("equation") || lower.includes("missing") || (lower.includes("complete") && lower.includes("sentence"))) && !lower.includes("addition") && !lower.includes("subtraction")) {
+    mode = "Equations";
+    summary = "Practice completing equations and finding unknown values.";
+    questions = algebraQuestions(route);
+  } else if (lower.includes("identify-numbers") || lower.includes("identify numbers") || lower.includes("write-number-you-hear")) {
     mode = "Number recognition";
     summary = `Practice recognizing numerals from 1 to ${max}.`;
     questions = identifyNumberQuestions(route, max);
