@@ -91,36 +91,124 @@ const payloadId = `practice-data-${exerciseSet.route.replace(/[^a-z0-9]+/gi, "-"
         feedback.className = "mt-5 hidden rounded-lg border p-4 text-sm font-bold";
         feedback.textContent = "";
       }
-      if (choices) {
-        choices.innerHTML = "";
-        question.choices.forEach((choice: { label: string; value: string | number; visual?: string }) => {
-          const button = document.createElement("button");
-          button.type = "button";
-          button.className = "min-h-20 rounded-lg border-2 border-slate-200 bg-white p-4 text-center text-2xl font-black text-ocean-700 shadow-sm transition hover:border-ocean-500 hover:bg-ocean-50";
-          button.dataset.value = String(choice.value);
-          button.innerHTML = choice.visual
-            ? `<span class="block text-4xl leading-relaxed">${choice.visual}</span><span class="mt-2 block text-sm text-slate-500">${choice.label}</span>`
-            : choice.label;
-          button.addEventListener("click", () => answer(choice.value, button));
-          choices.appendChild(button);
-        });
-      }
+      if (choices) renderInteraction(question);
       setText(scoreEl, String(score));
       setText(streakEl, String(streak));
     }
 
-    function answer(value: string | number, button: HTMLButtonElement) {
+    function normalize(value: string | number) {
+      return String(value).trim().toLowerCase().replace(/\s+/g, " ");
+    }
+
+    function isCorrect(value: string | number, expected: string | number) {
+      return normalize(value) === normalize(expected);
+    }
+
+    function renderButton(choice: { label: string; value: string | number; visual?: string }, onClick: (button: HTMLButtonElement) => void) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "min-h-20 rounded-lg border-2 border-slate-200 bg-white p-4 text-center text-2xl font-black text-ocean-700 shadow-sm transition hover:border-ocean-500 hover:bg-ocean-50";
+      button.dataset.value = String(choice.value);
+      button.innerHTML = choice.visual
+        ? `<span class="block text-4xl leading-relaxed">${choice.visual}</span><span class="mt-2 block text-sm text-slate-500">${choice.label}</span>`
+        : choice.label;
+      button.addEventListener("click", () => onClick(button));
+      return button;
+    }
+
+    function renderInteraction(question: any) {
+      if (!choices) return;
+      choices.innerHTML = "";
+      choices.className = "mt-6 grid grid-cols-3 gap-3 max-sm:grid-cols-1";
+
+      if (question.type === "input") {
+        choices.className = "mt-6";
+        const form = document.createElement("form");
+        form.className = "flex gap-3 max-sm:flex-col";
+        form.innerHTML = `
+          <input class="min-h-14 flex-1 rounded-lg border-2 border-slate-200 bg-white px-4 text-xl font-black text-ocean-700 outline-none transition focus:border-ocean-500" placeholder="${question.placeholder ?? "Type your answer"}" data-practice-input />
+          <button type="submit" class="button-primary min-h-14 px-6">Check</button>
+        `;
+        form.addEventListener("submit", (event) => {
+          event.preventDefault();
+          const input = form.querySelector("[data-practice-input]") as HTMLInputElement | null;
+          answer(input?.value ?? "", form.querySelector("button") as HTMLButtonElement | null);
+        });
+        choices.appendChild(form);
+        return;
+      }
+
+      if (question.type === "order") {
+        choices.className = "mt-6 space-y-4";
+        const selected: string[] = [];
+        const bank = document.createElement("div");
+        bank.className = "grid grid-cols-3 gap-3 max-sm:grid-cols-1";
+        const tray = document.createElement("div");
+        tray.className = "min-h-16 rounded-lg border-2 border-dashed border-ocean-200 bg-white p-3 text-lg font-black text-ocean-700";
+        tray.textContent = "Tap tiles to build the answer.";
+        question.choices.forEach((choice: { label: string; value: string | number; visual?: string }) => {
+          const button = renderButton(choice, (tile) => {
+            if (answered || tile.disabled) return;
+            selected.push(String(choice.value));
+            tile.disabled = true;
+            tile.classList.add("opacity-40");
+            tray.textContent = selected.join(" ");
+            if (selected.length === question.choices.length) answer(selected.join("|"), tile);
+          });
+          bank.appendChild(button);
+        });
+        choices.append(tray, bank);
+        return;
+      }
+
+      if (question.type === "multiSelect") {
+        choices.className = "mt-6 space-y-4";
+        const selected = new Set<string>();
+        const grid = document.createElement("div");
+        grid.className = "grid grid-cols-2 gap-3 max-sm:grid-cols-1";
+        question.choices.forEach((choice: { label: string; value: string | number; visual?: string }) => {
+          const button = renderButton(choice, (toggle) => {
+            if (answered) return;
+            const value = String(choice.value);
+            if (selected.has(value)) {
+              selected.delete(value);
+              toggle.classList.remove("border-ocean-500", "bg-ocean-50");
+            } else {
+              selected.add(value);
+              toggle.classList.add("border-ocean-500", "bg-ocean-50");
+            }
+          });
+          grid.appendChild(button);
+        });
+        const check = document.createElement("button");
+        check.type = "button";
+        check.className = "button-primary w-full";
+        check.textContent = "Check selected answers";
+        check.addEventListener("click", () => answer([...selected].sort().join("|"), check));
+        choices.append(grid, check);
+        return;
+      }
+
+      question.choices.forEach((choice: { label: string; value: string | number; visual?: string }) => {
+        choices.appendChild(renderButton(choice, (button) => answer(choice.value, button)));
+      });
+    }
+
+    function answer(value: string | number, button: HTMLButtonElement | null) {
       if (answered) return;
       answered = true;
       const question = questions[index];
-      const correct = String(value) === String(question.answer);
+      const expected = question.type === "multiSelect"
+        ? String(question.answer).split("|").sort().join("|")
+        : question.answer;
+      const correct = isCorrect(value, expected);
       if (correct) {
         score += 1;
         streak += 1;
-        button.classList.add("border-leaf-500", "bg-green-50");
+        button?.classList.add("border-leaf-500", "bg-green-50");
       } else {
         streak = 0;
-        button.classList.add("border-red-400", "bg-red-50");
+        button?.classList.add("border-red-400", "bg-red-50");
       }
       setText(scoreEl, String(score));
       setText(streakEl, String(streak));

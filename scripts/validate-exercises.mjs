@@ -91,12 +91,29 @@ for (const page of pages) {
   }
 
   for (const question of exerciseSet.questions) {
+    const type = question.type || "choice";
+    if (!["choice", "input", "order", "multiSelect"].includes(type)) {
+      errors.push(`${page.path}: ${question.id ?? "question"} has unsupported type ${type}`);
+      continue;
+    }
+    if (question.answer === undefined || question.answer === null || String(question.answer).trim() === "") {
+      errors.push(`${page.path}: ${question.id ?? "question"} has no answer`);
+    }
+    if (type === "input") continue;
+
     if (!Array.isArray(question.choices) || question.choices.length === 0) {
       errors.push(`${page.path}: ${question.id ?? "question"} has no choices`);
       continue;
     }
     const choiceValues = question.choices.map((choice) => choice.value);
-    if (!choiceValues.some((value) => valuesEqual(value, question.answer))) {
+    if (type === "multiSelect" || type === "order") {
+      const answerParts = String(question.answer).split("|").filter(Boolean);
+      for (const answerPart of answerParts) {
+        if (!choiceValues.some((value) => valuesEqual(value, answerPart))) {
+          errors.push(`${page.path}: ${question.id ?? "question"} answer part is not present in choices`);
+        }
+      }
+    } else if (!choiceValues.some((value) => valuesEqual(value, question.answer))) {
       errors.push(`${page.path}: ${question.id ?? "question"} answer is not present in choices`);
     }
     if (new Set(choiceValues.map(String)).size !== choiceValues.length) {

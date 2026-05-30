@@ -10,11 +10,12 @@ export interface ExerciseQuestion {
   id: string;
   prompt: string;
   instruction: string;
-  type: "choice";
+  type: "choice" | "input" | "order" | "multiSelect";
   answer: ChoiceValue;
   choices: ExerciseChoice[];
   visual?: string;
   explanation: string;
+  placeholder?: string;
 }
 
 export interface ExerciseSet {
@@ -88,16 +89,15 @@ function objectVisual(count: number, offset = 0) {
 }
 
 function countObjectsQuestions(route: string, max: number): ExerciseQuestion[] {
-  return practiceNumbers(max).map((answer, index) => ({
-    id: `${route}-count-${answer}`,
-    prompt: "How many objects are shown?",
-    instruction: "Count each object once, then choose the matching number.",
-    type: "choice",
+  return practiceNumbers(max).map((answer, index) => inputQuestion(
+    route,
+    `count-${answer}`,
+    "How many objects are shown?",
     answer,
-    choices: choicesForNumbers(max, answer),
-    visual: objectVisual(answer, index),
-    explanation: `There ${answer === 1 ? "is" : "are"} ${answer} ${answer === 1 ? "object" : "objects"}, so the matching number is ${answer}.`
-  }));
+    `There ${answer === 1 ? "is" : "are"} ${answer} ${answer === 1 ? "object" : "objects"}.`,
+    objectVisual(answer, index),
+    "Number"
+  ));
 }
 
 function identifyNumberQuestions(route: string, max: number): ExerciseQuestion[] {
@@ -161,6 +161,46 @@ function namedChoiceQuestion(route: string, id: string, prompt: string, answer: 
   };
 }
 
+function inputQuestion(route: string, id: string, prompt: string, answer: ChoiceValue, explanation: string, visual?: string, placeholder = "Type your answer"): ExerciseQuestion {
+  return {
+    id: `${route}-${id}`,
+    prompt,
+    instruction: "Type the answer, then check it.",
+    type: "input",
+    answer,
+    choices: [],
+    visual,
+    explanation,
+    placeholder
+  };
+}
+
+function orderQuestion(route: string, id: string, prompt: string, ordered: string[], explanation: string, visual?: string): ExerciseQuestion {
+  return {
+    id: `${route}-${id}`,
+    prompt,
+    instruction: "Tap the tiles in the correct order.",
+    type: "order",
+    answer: ordered.join("|"),
+    choices: [...ordered].reverse().map((choice) => ({ label: choice, value: choice })),
+    visual,
+    explanation
+  };
+}
+
+function multiSelectQuestion(route: string, id: string, prompt: string, answers: string[], choices: string[], explanation: string, visual?: string): ExerciseQuestion {
+  return {
+    id: `${route}-${id}`,
+    prompt,
+    instruction: "Select every answer that belongs, then check.",
+    type: "multiSelect",
+    answer: answers.join("|"),
+    choices: choices.map((choice) => ({ label: choice, value: choice })),
+    visual,
+    explanation
+  };
+}
+
 function nextNumberQuestions(route: string, max: number): ExerciseQuestion[] {
   return range(Math.max(1, max - 1)).map((number) => ({
     id: `${route}-next-${number}`,
@@ -176,14 +216,13 @@ function nextNumberQuestions(route: string, max: number): ExerciseQuestion[] {
 function orderNumberQuestions(route: string, max: number): ExerciseQuestion[] {
   const questions: ExerciseQuestion[] = [];
   for (let start = 1; start <= Math.max(1, max - 2); start += 1) {
-    const ordered = [start, start + 1, start + 2].join(", ");
-    questions.push(namedChoiceQuestion(
+    const ordered = [start, start + 1, start + 2].map(String);
+    questions.push(orderQuestion(
       route,
       `order-${start}`,
-      "Which list is in counting order?",
+      "Build the counting order.",
       ordered,
-      [ordered, [start + 1, start, start + 2].join(", "), [start + 2, start + 1, start].join(", ")],
-      `Counting order goes ${ordered}.`
+      `Counting order goes ${ordered.join(", ")}.`
     ));
   }
   return questions;
@@ -336,16 +375,15 @@ function additionQuestions(route: string, max: number): ExerciseQuestion[] {
     [1, 2],
     [2, 2],
     [2, Math.max(1, Math.min(3, max - 2))]
-  ].filter(([a, b]) => a + b <= max).map(([a, b], index) => ({
-    id: `${route}-add-${index}`,
-    prompt: `What is ${a} + ${b}?`,
-    instruction: "Put the groups together and count all.",
-    type: "choice",
-    answer: a + b,
-    choices: choicesForNumbers(max, a + b),
-    visual: `${objectVisual(a)}  +  ${objectVisual(b, 1)}`,
-    explanation: `${a} plus ${b} equals ${a + b}.`
-  }));
+  ].filter(([a, b]) => a + b <= max).map(([a, b], index) => inputQuestion(
+    route,
+    `add-${index}`,
+    `What is ${a} + ${b}?`,
+    a + b,
+    `${a} plus ${b} equals ${a + b}.`,
+    `${objectVisual(a)}  +  ${objectVisual(b, 1)}`,
+    "Sum"
+  ));
 }
 
 function subtractionQuestions(route: string, max: number): ExerciseQuestion[] {
@@ -354,16 +392,15 @@ function subtractionQuestions(route: string, max: number): ExerciseQuestion[] {
     [4, 2],
     [5, 1],
     [Math.min(max, 6), 3]
-  ].filter(([a, b]) => a <= max && a > b).map(([a, b], index) => ({
-    id: `${route}-subtract-${index}`,
-    prompt: `What is ${a} - ${b}?`,
-    instruction: "Take away and count what is left.",
-    type: "choice",
-    answer: a - b,
-    choices: choicesForNumbers(max, a - b),
-    visual: `${objectVisual(a)}  take away ${b}`,
-    explanation: `${a} minus ${b} equals ${a - b}.`
-  }));
+  ].filter(([a, b]) => a <= max && a > b).map(([a, b], index) => inputQuestion(
+    route,
+    `subtract-${index}`,
+    `What is ${a} - ${b}?`,
+    a - b,
+    `${a} minus ${b} equals ${a - b}.`,
+    `${objectVisual(a)}  take away ${b}`,
+    "Difference"
+  ));
 }
 
 function multiplicationQuestions(route: string): ExerciseQuestion[] {
@@ -372,16 +409,7 @@ function multiplicationQuestions(route: string): ExerciseQuestion[] {
     [4, 5],
     [6, 3],
     [7, 8]
-  ].map(([a, b], index) => ({
-    id: `${route}-multiply-${index}`,
-    prompt: `What is ${a} x ${b}?`,
-    instruction: "Use equal groups or facts to find the product.",
-    type: "choice",
-    answer: a * b,
-    choices: choicesForNumbers(100, a * b),
-    visual: `${a} groups of ${b}`,
-    explanation: `${a} groups of ${b} equals ${a * b}.`
-  }));
+  ].map(([a, b], index) => inputQuestion(route, `multiply-${index}`, `What is ${a} x ${b}?`, a * b, `${a} groups of ${b} equals ${a * b}.`, `${a} groups of ${b}`, "Product"));
 }
 
 function divisionQuestions(route: string): ExerciseQuestion[] {
@@ -390,32 +418,23 @@ function divisionQuestions(route: string): ExerciseQuestion[] {
     [20, 5],
     [18, 6],
     [32, 8]
-  ].map(([total, groups], index) => ({
-    id: `${route}-divide-${index}`,
-    prompt: `What is ${total} divided by ${groups}?`,
-    instruction: "Split the total into equal groups.",
-    type: "choice",
-    answer: total / groups,
-    choices: choicesForNumbers(20, total / groups),
-    visual: `${total} objects split into ${groups} equal groups`,
-    explanation: `${total} divided by ${groups} is ${total / groups}.`
-  }));
+  ].map(([total, groups], index) => inputQuestion(route, `divide-${index}`, `What is ${total} divided by ${groups}?`, total / groups, `${total} divided by ${groups} is ${total / groups}.`, `${total} objects split into ${groups} equal groups`, "Quotient"));
 }
 
 function placeValueQuestions(route: string, title: string): ExerciseQuestion[] {
   const lower = title.toLowerCase();
   if (lower.includes("digit")) {
     return [
-      namedChoiceQuestion(route, "hundreds-digit", "In 348, which digit is in the hundreds place?", "3", ["3", "4", "8"], "The hundreds place is the third digit from the right."),
-      namedChoiceQuestion(route, "tens-digit", "In 348, which digit is in the tens place?", "4", ["3", "4", "8"], "The tens place is the second digit from the right.")
+      inputQuestion(route, "hundreds-digit", "In 348, which digit is in the hundreds place?", "3", "The hundreds place is the third digit from the right.", undefined, "Digit"),
+      inputQuestion(route, "tens-digit", "In 348, which digit is in the tens place?", "4", "The tens place is the second digit from the right.", undefined, "Digit")
     ];
   }
   if (lower.includes("expanded")) {
-    return [namedChoiceQuestion(route, "expanded", "Which is expanded form for 462?", "400 + 60 + 2", ["400 + 60 + 2", "40 + 6 + 2", "4 + 6 + 2"], "462 has 4 hundreds, 6 tens, and 2 ones.")];
+    return [orderQuestion(route, "expanded", "Tap the place-value parts for 462 from greatest to least.", ["400", "60", "2"], "462 has 4 hundreds, 6 tens, and 2 ones.")];
   }
   return [
-    namedChoiceQuestion(route, "base-ten", "What number is 3 tens and 5 ones?", "35", ["35", "53", "305"], "3 tens is 30, and 5 ones makes 35."),
-    namedChoiceQuestion(route, "value", "What is the value of the 7 in 274?", "70", ["7", "70", "700"], "The 7 is in the tens place, so its value is 70.")
+    inputQuestion(route, "base-ten", "What number is 3 tens and 5 ones?", "35", "3 tens is 30, and 5 ones makes 35.", undefined, "Number"),
+    inputQuestion(route, "value", "What is the value of the 7 in 274?", "70", "The 7 is in the tens place, so its value is 70.", undefined, "Value")
   ];
 }
 
@@ -461,8 +480,8 @@ function fractionQuestions(route: string, title: string): ExerciseQuestion[] {
 
 function timeQuestions(route: string): ExerciseQuestion[] {
   return [
-    namedChoiceQuestion(route, "clock-hour", "What time is shown?", "3:00", ["3:00", "12:03", "6:00"], "The hour hand points to 3 and the minute hand points to 12.", "hour hand: 3, minute hand: 12"),
-    namedChoiceQuestion(route, "clock-half", "What time is half past 7?", "7:30", ["7:30", "6:30", "7:00"], "Half past means 30 minutes after the hour.")
+    inputQuestion(route, "clock-hour", "What time is shown?", "3:00", "The hour hand points to 3 and the minute hand points to 12.", "hour hand: 3, minute hand: 12", "Time"),
+    inputQuestion(route, "clock-half", "What time is half past 7?", "7:30", "Half past means 30 minutes after the hour.", undefined, "Time")
   ];
 }
 
@@ -475,8 +494,8 @@ function dataQuestions(route: string): ExerciseQuestion[] {
 
 function algebraQuestions(route: string): ExerciseQuestion[] {
   return [
-    namedChoiceQuestion(route, "missing-addend", "What number makes 8 + __ = 13 true?", "5", ["4", "5", "6"], "8 plus 5 equals 13."),
-    namedChoiceQuestion(route, "variable", "If x + 4 = 10, what is x?", "6", ["4", "6", "14"], "Subtract 4 from 10 to get 6.")
+    inputQuestion(route, "missing-addend", "What number makes 8 + __ = 13 true?", "5", "8 plus 5 equals 13.", undefined, "Missing number"),
+    inputQuestion(route, "variable", "If x + 4 = 10, what is x?", "6", "Subtract 4 from 10 to get 6.", undefined, "x")
   ];
 }
 
@@ -484,15 +503,15 @@ function measurementQuestions(route: string, title: string): ExerciseQuestion[] 
   const lower = title.toLowerCase();
   if (lower.includes("ruler") || lower.includes("inch") || lower.includes("centimeter")) {
     return [
-      namedChoiceQuestion(route, "ruler", "A line starts at 0 and ends at 6 on a ruler. How long is it?", "6 units", ["4 units", "6 units", "8 units"], "Measure from 0 to the ending mark."),
+      inputQuestion(route, "ruler", "A line starts at 0 and ends at 6 on a ruler. How long is it?", "6 units", "Measure from 0 to the ending mark.", undefined, "Length"),
       namedChoiceQuestion(route, "compare-length", "Which object is longer?", "8 inches", ["5 inches", "8 inches", "3 inches"], "8 inches is the greatest length shown.")
     ];
   }
   if (lower.includes("area")) {
-    return [namedChoiceQuestion(route, "area", "A rectangle is 4 units long and 3 units wide. What is its area?", "12 square units", ["7 square units", "12 square units", "14 square units"], "Area is length times width, so 4 x 3 = 12.")];
+    return [inputQuestion(route, "area", "A rectangle is 4 units long and 3 units wide. What is its area?", "12 square units", "Area is length times width, so 4 x 3 = 12.", undefined, "Area")];
   }
   if (lower.includes("volume")) {
-    return [namedChoiceQuestion(route, "volume", "A prism has 3 layers of 4 cubes. What is the volume?", "12 cubic units", ["7 cubic units", "12 cubic units", "24 cubic units"], "Volume counts cubic units, so 3 x 4 = 12.")];
+    return [inputQuestion(route, "volume", "A prism has 3 layers of 4 cubes. What is the volume?", "12 cubic units", "Volume counts cubic units, so 3 x 4 = 12.", undefined, "Volume")];
   }
   return sizeQuestions(route, title);
 }
@@ -500,13 +519,13 @@ function measurementQuestions(route: string, title: string): ExerciseQuestion[] 
 function wordProblemQuestions(route: string): ExerciseQuestion[] {
   return [
     namedChoiceQuestion(route, "word-problem-plan", "A problem asks for the total after two groups are joined. Which operation should you use?", "addition", ["addition", "subtraction", "division"], "Joining groups asks for a total, so addition fits."),
-    namedChoiceQuestion(route, "multi-step", "What should you do first in a multi-step problem?", "identify what is being asked", ["identify what is being asked", "guess an answer", "ignore the units"], "Understanding the question tells you which steps are needed.")
+    orderQuestion(route, "multi-step", "Put the problem-solving steps in order.", ["read", "choose operation", "solve", "check"], "A reliable strategy is to read, choose the operation, solve, and check.")
   ];
 }
 
 function expressionQuestions(route: string): ExerciseQuestion[] {
   return [
-    namedChoiceQuestion(route, "evaluate", "Evaluate 3 + 4 x 2.", "11", ["14", "11", "10"], "Multiply before adding: 4 x 2 = 8, then 3 + 8 = 11."),
+    inputQuestion(route, "evaluate", "Evaluate 3 + 4 x 2.", "11", "Multiply before adding: 4 x 2 = 8, then 3 + 8 = 11.", undefined, "Value"),
     namedChoiceQuestion(route, "equivalent", "Which expression is equivalent to 2(x + 3)?", "2x + 6", ["2x + 6", "x + 6", "2x + 3"], "Use the distributive property.")
   ];
 }
@@ -514,7 +533,7 @@ function expressionQuestions(route: string): ExerciseQuestion[] {
 function integerQuestions(route: string): ExerciseQuestion[] {
   return [
     namedChoiceQuestion(route, "integer-compare", "Which number is less than -2?", "-5", ["3", "-1", "-5"], "On a number line, -5 is left of -2."),
-    namedChoiceQuestion(route, "integer-add", "What is -3 + 8?", "5", ["-11", "5", "-5"], "Move 8 spaces right from -3 to land on 5.")
+    inputQuestion(route, "integer-add", "What is -3 + 8?", "5", "Move 8 spaces right from -3 to land on 5.", undefined, "Integer")
   ];
 }
 
@@ -522,13 +541,13 @@ function ratioPercentQuestions(route: string, title: string): ExerciseQuestion[]
   const lower = title.toLowerCase();
   if (lower.includes("percent")) {
     return [
-      namedChoiceQuestion(route, "percent", "What is 25% of 80?", "20", ["20", "25", "40"], "25% is one fourth, and one fourth of 80 is 20."),
-      namedChoiceQuestion(route, "percent-change", "A price goes from $50 to $60. What is the increase?", "20%", ["10%", "20%", "60%"], "The increase is 10, and 10 is 20% of 50.")
+      inputQuestion(route, "percent", "What is 25% of 80?", "20", "25% is one fourth, and one fourth of 80 is 20.", undefined, "Number"),
+      inputQuestion(route, "percent-change", "A price goes from $50 to $60. What is the percent increase?", "20%", "The increase is 10, and 10 is 20% of 50.", undefined, "Percent")
     ];
   }
   return [
     namedChoiceQuestion(route, "ratio", "Which ratio matches 2 red counters and 3 blue counters?", "2:3", ["2:3", "3:2", "5:2"], "The ratio red to blue is 2 to 3."),
-    namedChoiceQuestion(route, "rate", "A car travels 120 miles in 2 hours. What is the unit rate?", "60 miles per hour", ["60 miles per hour", "122 miles per hour", "240 miles per hour"], "Divide miles by hours: 120 / 2 = 60.")
+    inputQuestion(route, "rate", "A car travels 120 miles in 2 hours. What is the unit rate?", "60 miles per hour", "Divide miles by hours: 120 / 2 = 60.", undefined, "Unit rate")
   ];
 }
 
@@ -587,14 +606,14 @@ function factFamilyQuestions(route: string): ExerciseQuestion[] {
 
 function calendarQuestions(route: string): ExerciseQuestion[] {
   return [
-    namedChoiceQuestion(route, "week", "Which day comes after Monday?", "Tuesday", ["Sunday", "Tuesday", "Friday"], "Tuesday comes after Monday."),
+    orderQuestion(route, "week", "Put these weekdays in order.", ["Monday", "Tuesday", "Wednesday"], "Tuesday comes after Monday, then Wednesday."),
     namedChoiceQuestion(route, "calendar", "A calendar square is labeled 15. What does 15 show?", "the day of the month", ["the day of the month", "the season", "the hour"], "Calendar numbers show days of the month.")
   ];
 }
 
 function financialQuestions(route: string): ExerciseQuestion[] {
   return [
-    namedChoiceQuestion(route, "needs-wants", "Which item is a need?", "food", ["food", "video game", "sticker"], "Food is something people need."),
+    multiSelectQuestion(route, "needs-wants", "Select the needs.", ["food", "water"], ["food", "video game", "water", "sticker"], "Food and water are needs; games and stickers are wants."),
     namedChoiceQuestion(route, "saving", "What does saving money mean?", "keeping money for later", ["keeping money for later", "spending it all now", "throwing it away"], "Saving means setting money aside for future use.")
   ];
 }
@@ -623,7 +642,7 @@ function wordStudyQuestions(route: string): ExerciseQuestion[] {
 function grammarQuestions(route: string, title: string): ExerciseQuestion[] {
   const lower = title.toLowerCase();
   if (lower.includes("correlative conjunction")) {
-    return [namedChoiceQuestion(route, "correlative-conjunction", "Choose the pair that completes the sentence: __ Mia __ Leo can lead the group.", "Either / or", ["Either / or", "Because / and", "Very / quickly"], "Either and or work together as a correlative conjunction pair.")];
+    return [inputQuestion(route, "correlative-conjunction", "Complete the sentence: __ Mia __ Leo can lead the group.", "Either / or", "Either and or work together as a correlative conjunction pair.", "__ / __")];
   }
   if (lower.includes("antecedent")) {
     return [namedChoiceQuestion(route, "antecedent", "In the sentence Ava packed her bag, what is the antecedent of her?", "Ava", ["Ava", "bag", "packed"], "The pronoun her refers back to Ava.")];
@@ -632,7 +651,7 @@ function grammarQuestions(route: string, title: string): ExerciseQuestion[] {
     return [namedChoiceQuestion(route, "verb-tense", "Which sentence uses a past-tense verb?", "Jordan walked home.", ["Jordan walked home.", "Jordan walks home.", "Jordan will walk home."], "Walked tells about an action that already happened.")];
   }
   if (lower.includes("statement") || lower.includes("question") || lower.includes("exclamation")) {
-    return [namedChoiceQuestion(route, "sentence-kind", "Which sentence asks something?", "Where is the book?", ["Where is the book?", "The book is here.", "What a great book!"], "A question asks something and usually ends with a question mark.")];
+    return [multiSelectQuestion(route, "sentence-kind", "Select the sentences that ask something.", ["Where is the book?", "Can you help?"], ["Where is the book?", "The book is here.", "Can you help?", "What a great book!"], "Questions ask something and usually end with a question mark.")];
   }
   if (lower.includes("one or more than one") || lower.includes("plural")) {
     return [namedChoiceQuestion(route, "singular-plural", "Which word names more than one?", "dogs", ["dogs", "dog", "runs"], "Dogs is plural, so it names more than one dog.")];
@@ -642,7 +661,7 @@ function grammarQuestions(route: string, title: string): ExerciseQuestion[] {
 
 function scienceEngineeringQuestions(route: string): ExerciseQuestion[] {
   return [
-    namedChoiceQuestion(route, "design", "What should engineers do after testing a solution?", "use evidence to improve it", ["use evidence to improve it", "ignore the results", "stop all work"], "Engineering design uses test results to improve solutions."),
+    orderQuestion(route, "design", "Put the engineering design actions in order.", ["test", "use evidence", "improve"], "Engineering design uses test results to improve solutions."),
     namedChoiceQuestion(route, "constraint", "Which is a design constraint?", "the bridge must hold 10 pounds", ["the bridge must hold 10 pounds", "the sky is blue", "rocks are old"], "A constraint is a requirement or limit for the design.")
   ];
 }
@@ -740,8 +759,8 @@ function spanishListeningQuestions(route: string): ExerciseQuestion[] {
 
 function spanishWritingQuestions(route: string): ExerciseQuestion[] {
   return [
-    namedChoiceQuestion(route, "letter", "Which phrase could begin a friendly letter?", "Querido amigo:", ["Querido amigo:", "El perro azul.", "A las tres."], "Querido amigo is a common friendly-letter opening."),
-    namedChoiceQuestion(route, "sentence", "Which sentence means I like soccer?", "Me gusta el futbol.", ["Me gusta el futbol.", "Tengo una mesa.", "Es lunes."], "Me gusta can express likes.")
+    inputQuestion(route, "letter", "Type a phrase that could begin a friendly letter to a friend.", "Querido amigo:", "Querido amigo is a common friendly-letter opening.", undefined, "Greeting"),
+    orderQuestion(route, "sentence", "Build the sentence that means I like soccer.", ["Me", "gusta", "el", "futbol."], "Me gusta can express likes.")
   ];
 }
 
