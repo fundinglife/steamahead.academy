@@ -10,7 +10,7 @@ const intentionallyGenericModes = new Set([]);
 function isSubjectLeaf(page) {
   const route = page.path;
   if (!subjectPrefixes.some((prefix) => route.startsWith(prefix))) return false;
-  if (route.startsWith("/math/skill-plans/")) return false;
+  if (route.includes("/skill-plans/")) return false;
   if (page.skillSections?.length) return false;
   if (/\/(videos|games|lessons|skills)$/.test(route)) return false;
   const depth = route.split("/").filter(Boolean).length;
