@@ -620,6 +620,26 @@ function wordStudyQuestions(route: string): ExerciseQuestion[] {
   ];
 }
 
+function grammarQuestions(route: string, title: string): ExerciseQuestion[] {
+  const lower = title.toLowerCase();
+  if (lower.includes("correlative conjunction")) {
+    return [namedChoiceQuestion(route, "correlative-conjunction", "Choose the pair that completes the sentence: __ Mia __ Leo can lead the group.", "Either / or", ["Either / or", "Because / and", "Very / quickly"], "Either and or work together as a correlative conjunction pair.")];
+  }
+  if (lower.includes("antecedent")) {
+    return [namedChoiceQuestion(route, "antecedent", "In the sentence Ava packed her bag, what is the antecedent of her?", "Ava", ["Ava", "bag", "packed"], "The pronoun her refers back to Ava.")];
+  }
+  if (lower.includes("tense") || lower.includes("to be") || lower.includes("to have")) {
+    return [namedChoiceQuestion(route, "verb-tense", "Which sentence uses a past-tense verb?", "Jordan walked home.", ["Jordan walked home.", "Jordan walks home.", "Jordan will walk home."], "Walked tells about an action that already happened.")];
+  }
+  if (lower.includes("statement") || lower.includes("question") || lower.includes("exclamation")) {
+    return [namedChoiceQuestion(route, "sentence-kind", "Which sentence asks something?", "Where is the book?", ["Where is the book?", "The book is here.", "What a great book!"], "A question asks something and usually ends with a question mark.")];
+  }
+  if (lower.includes("one or more than one") || lower.includes("plural")) {
+    return [namedChoiceQuestion(route, "singular-plural", "Which word names more than one?", "dogs", ["dogs", "dog", "runs"], "Dogs is plural, so it names more than one dog.")];
+  }
+  return [namedChoiceQuestion(route, "grammar", "Which word is a noun?", "dog", ["run", "dog", "blue"], "Dog names a thing, so it is a noun.")];
+}
+
 function scienceEngineeringQuestions(route: string): ExerciseQuestion[] {
   return [
     namedChoiceQuestion(route, "design", "What should engineers do after testing a solution?", "use evidence to improve it", ["use evidence to improve it", "ignore the results", "stop all work"], "Engineering design uses test results to improve solutions."),
@@ -655,6 +675,76 @@ function measurementUnitsQuestions(route: string): ExerciseQuestion[] {
   ];
 }
 
+function editingQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "revise", "Which sentence is clearer?", "The sign says, \"No parking.\"", ["The sign says, \"No parking.\"", "Sign no parking says.", "Parking no sign."], "The clearest sentence puts the words in a logical order."),
+    namedChoiceQuestion(route, "redundant", "Which phrase avoids repetition?", "final result", ["final result", "final end result", "result result"], "Avoiding unnecessary repeated words makes writing clearer.")
+  ];
+}
+
+function earlyComprehensionQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "real-life", "Which event could happen in real life?", "A child plants a seed.", ["A child plants a seed.", "A pencil talks.", "The moon eats soup."], "Planting a seed is realistic."),
+    namedChoiceQuestion(route, "feeling", "A child is smiling and clapping. How does the child probably feel?", "happy", ["happy", "sleepy", "lost"], "Smiling and clapping are clues that the child feels happy.")
+  ];
+}
+
+function locationWordQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "location", "Which word tells where the cup is?", "beside", ["beside", "green", "run"], "Beside is a location word."),
+    namedChoiceQuestion(route, "question-word", "Which word asks about a place?", "where", ["where", "when", "who"], "Where asks about location.")
+  ];
+}
+
+function romanNumeralQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "roman-v", "What number does V represent?", "5", ["1", "5", "10"], "In Roman numerals, V means 5."),
+    namedChoiceQuestion(route, "roman-x", "What number does X represent?", "10", ["5", "9", "10"], "In Roman numerals, X means 10.")
+  ];
+}
+
+function logicQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "conditional", "Which statement is conditional?", "If it rains, then the ground gets wet.", ["If it rains, then the ground gets wet.", "The ground is wet.", "Rain is water."], "Conditional statements use an if-then structure."),
+    namedChoiceQuestion(route, "truth", "If a statement is true, what is its truth value?", "true", ["true", "parallel", "fraction"], "A true statement has a truth value of true.")
+  ];
+}
+
+function unitConversionQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "customary", "Which is a customary length unit?", "inch", ["inch", "liter", "gram"], "Inches are customary units of length."),
+    namedChoiceQuestion(route, "metric", "Which is a metric length unit?", "centimeter", ["centimeter", "pound", "cup"], "Centimeters are metric units of length.")
+  ];
+}
+
+function ecologyQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "ecosystem", "Which interaction is part of an ecosystem?", "organisms using resources", ["organisms using resources", "numbers in order", "commas in a sentence"], "Ecosystems include organisms interacting with resources."),
+    namedChoiceQuestion(route, "succession", "What can happen after a disturbance in an ecosystem?", "new organisms gradually move in", ["new organisms gradually move in", "all matter disappears", "magnets stop working"], "Succession describes ecological change over time.")
+  ];
+}
+
+function holidayCultureQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "holiday", "What can a holiday help people remember or celebrate?", "an important person, event, or tradition", ["an important person, event, or tradition", "only a map key", "only a math fact"], "Holidays often connect to history, culture, or traditions."),
+    namedChoiceQuestion(route, "culture", "Which is an example of culture?", "a community tradition", ["a community tradition", "a subtraction sign", "a thermometer"], "Traditions are part of culture.")
+  ];
+}
+
+function spanishListeningQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "listen", "A speaker says me gusta leer. What activity is mentioned?", "reading", ["reading", "running", "cooking"], "Leer means to read."),
+    namedChoiceQuestion(route, "match", "Which image would match la familia?", "a family", ["a family", "a clock", "a school subject"], "La familia means the family.")
+  ];
+}
+
+function spanishWritingQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "letter", "Which phrase could begin a friendly letter?", "Querido amigo:", ["Querido amigo:", "El perro azul.", "A las tres."], "Querido amigo is a common friendly-letter opening."),
+    namedChoiceQuestion(route, "sentence", "Which sentence means I like soccer?", "Me gusta el futbol.", ["Me gusta el futbol.", "Tengo una mesa.", "Es lunes."], "Me gusta can express likes.")
+  ];
+}
+
 function languageArtsQuestions(route: string, title: string): ExerciseQuestion[] {
   const lower = title.toLowerCase();
   if (lower.includes("syllable")) {
@@ -669,7 +759,7 @@ function languageArtsQuestions(route: string, title: string): ExerciseQuestion[]
   if (lower.includes("homophone")) {
     return [namedChoiceQuestion(route, "homophone", "Which word sounds like sea?", "see", ["see", "say", "sit"], "Sea and see sound alike but have different meanings.")];
   }
-  if (includesAny(lower, ["simile", "metaphor", "figurative", "idiom"])) {
+  if (includesAny(lower, ["simile", "metaphor", "figurative", "idiom", "personification"])) {
     return [namedChoiceQuestion(route, "figurative", "Which sentence uses a simile?", "The snow was like a blanket.", ["The snow was like a blanket.", "The snow fell.", "The snow is cold."], "A simile compares using like or as.")];
   }
   if (includesAny(lower, ["comma", "capital", "punctuation", "apostrophe", "quotation", "semicolon", "colon"])) {
@@ -681,13 +771,16 @@ function languageArtsQuestions(route: string, title: string): ExerciseQuestion[]
   if (includesAny(lower, ["transition", "organize", "topic", "paragraph", "essay", "revise", "editing"])) {
     return [namedChoiceQuestion(route, "writing", "Which transition shows contrast?", "however", ["however", "also", "first"], "However signals a contrast between ideas.")];
   }
-  if (includesAny(lower, ["character", "dialogue", "point of view", "narrative", "historical fiction", "short stories", "passage", "passages", "theme", "tone"])) {
+  if (includesAny(lower, ["correct errors", "suggest appropriate revisions", "remove redundant", "comparisons", "signs"])) {
+    return editingQuestions(route);
+  }
+  if (includesAny(lower, ["character", "dialogue", "point of view", "narrative", "narrator", "myths", "legends", "fables", "historical fiction", "short stories", "passage", "passages", "theme", "tone"])) {
     return literaryAnalysisQuestions(route);
   }
   if (includesAny(lower, ["claim", "evidence", "argument", "thesis", "counterclaim", "fact", "opinion", "audience", "purpose"])) {
     return argumentQuestions(route);
   }
-  if (includesAny(lower, ["prefix", "suffix", "root", "roots", "base word", "analogies", "connotation", "precisely", "multiple-meaning", "figures of speech"])) {
+  if (includesAny(lower, ["prefix", "suffix", "root", "roots", "base word", "words with", "pre-", "re-", "mis-", "sub-", "un-", "dis-", "in-", "im-", "non", "analogies", "connotation", "precisely", "multiple-meaning", "figures of speech"])) {
     return wordStudyQuestions(route);
   }
   if (lower.includes("sight words") || lower.includes("sight word")) {
@@ -729,6 +822,9 @@ function languageArtsQuestions(route: string, title: string): ExerciseQuestion[]
   if (lower.includes("rhyme")) {
     return [namedChoiceQuestion(route, "rhyme", "Which word rhymes with cat?", "hat", ["hat", "dog", "sun"], "Cat and hat rhyme because they end with the same sound.")];
   }
+  if (includesAny(lower, ["complete the word", "matches the picture", "same ending", "read words", "-ss", "-ll", "-ff", "-zz", "-ck", "word: ng", "word-ng", "ng, nk", "ng and nk", "am and an"])) {
+    return [namedChoiceQuestion(route, "phonics-pattern", "Which word ends with the same sound as bell?", "shell", ["shell", "bike", "moon"], "Bell and shell share the ending sound /el/.")];
+  }
   if (lower.includes("sound") || lower.includes("begins") || lower.includes("starts")) {
     return [namedChoiceQuestion(route, "sound", "Which word starts with /m/?", "moon", ["sun", "moon", "fish"], "Moon starts with the /m/ sound.")];
   }
@@ -738,14 +834,23 @@ function languageArtsQuestions(route: string, title: string): ExerciseQuestion[]
   if (lower.includes("antonym")) {
     return [namedChoiceQuestion(route, "antonym", "Which word means the opposite of hot?", "cold", ["cold", "warm", "heat"], "Cold is the opposite of hot.")];
   }
-  if (lower.includes("context")) {
+  if (lower.includes("context") || lower.includes("meaning") || lower.includes("domain-specific")) {
     return [namedChoiceQuestion(route, "context", "Use context: The desert was arid, with almost no rain. What does arid mean?", "dry", ["dry", "crowded", "loud"], "Almost no rain is a clue that arid means dry.")];
   }
-  if (lower.includes("sentence") || lower.includes("grammar") || lower.includes("noun") || lower.includes("verb") || lower.includes("pronoun") || lower.includes("adjective") || lower.includes("punctuation") || lower.includes("plural") || lower.includes("possessive") || lower.includes("clause") || lower.includes("modifier") || lower.includes("prepositional phrase")) {
-    return [namedChoiceQuestion(route, "grammar", "Which word is a noun?", "dog", ["run", "dog", "blue"], "Dog names a thing, so it is a noun.")];
+  if (lower.includes("sentence") || lower.includes("grammar") || lower.includes("noun") || lower.includes("verb") || lower.includes("pronoun") || lower.includes("adjective") || lower.includes("punctuation") || lower.includes("plural") || lower.includes("possessive") || lower.includes("clause") || lower.includes("modifier") || lower.includes("prepositional phrase") || lower.includes("conjunction") || lower.includes("antecedent") || lower.includes("tense") || lower.includes("to be") || lower.includes("to have") || lower.includes("statement") || lower.includes("question") || lower.includes("exclamation") || lower.includes("one or more than one")) {
+    return grammarQuestions(route, title);
   }
   if (lower.includes("book") || lower.includes("story") || lower.includes("text") || lower.includes("plot") || lower.includes("main idea") || lower.includes("inference") || lower.includes("read about") || lower.includes("read realistic") || lower.includes("read animal") || lower.includes("read along") || lower.includes("fantasy")) {
     return [namedChoiceQuestion(route, "reading", "Which part of a book tells the name of the book?", "title", ["title", "page number", "period"], "The title tells the name of the book.")];
+  }
+  if (includesAny(lower, ["what am i", "could happen in real life", "feeling matches", "which book title", "not like the others"])) {
+    return earlyComprehensionQuestions(route);
+  }
+  if (includesAny(lower, ["use number words", "use color words", "same words", "words that are the same"])) {
+    return [namedChoiceQuestion(route, "basic-vocabulary", "Which word names a color?", "blue", ["blue", "run", "two"], "Blue is a color word.")];
+  }
+  if (includesAny(lower, ["inside and outside", "above and below", "location word", "who what when where or why", "who, what, when, where, or why", "abc order"])) {
+    return locationWordQuestions(route);
   }
   return [
     namedChoiceQuestion(route, "vocabulary", "Which answer best matches this language arts skill?", cleanTitle(title), [cleanTitle(title), "math facts", "coin names"], `This skill practices ${cleanTitle(title).toLowerCase()}.`)
@@ -760,7 +865,7 @@ function scienceQuestions(route: string, title: string): ExerciseQuestion[] {
   if (lower.includes("animal") || lower.includes("animals") || lower.includes("survive") || lower.includes("habitat") || lower.includes("pollinator") || lower.includes("symbiotic")) {
     return [namedChoiceQuestion(route, "animals", "What do animals need to survive?", "food and water", ["food and water", "only toys", "only rocks"], "Animals need food and water to survive.")];
   }
-  if (lower.includes("push") || lower.includes("pull") || lower.includes("force")) {
+  if (lower.includes("push") || lower.includes("pushes") || lower.includes("pull") || lower.includes("pulls") || lower.includes("force") || lower.includes("forces")) {
     return [namedChoiceQuestion(route, "force", "Which action is a push?", "moving a box away", ["moving a box away", "bringing a wagon closer", "sleeping"], "A push moves something away.")];
   }
   if (lower.includes("plant") || lower.includes("moss") || lower.includes("fern")) {
@@ -781,6 +886,9 @@ function scienceQuestions(route: string, title: string): ExerciseQuestion[] {
   if (includesAny(lower, ["unit", "units", "thermometer", "temperature", "distance", "mass", "volume", "speed"])) {
     return measurementUnitsQuestions(route);
   }
+  if (includesAny(lower, ["succession", "ecosystem", "biodiversity", "group behavior", "caribou", "coral reef", "gene mutations", "organisms"])) {
+    return ecologyQuestions(route);
+  }
   return [namedChoiceQuestion(route, "science", "Which answer is evidence?", "an observation", ["an observation", "a guess with no support", "a random choice"], "Science uses observations as evidence.")];
 }
 
@@ -798,7 +906,7 @@ function socialStudiesQuestions(route: string, title: string): ExerciseQuestion[
   if (lower.includes("job") || lower.includes("worker")) {
     return [namedChoiceQuestion(route, "job", "Who helps keep people safe?", "firefighter", ["firefighter", "pillow", "map"], "A firefighter is a community helper.")];
   }
-  if (includesAny(lower, ["scarcity", "shortage", "surplus", "supply", "demand", "producer", "consumer", "resources", "needs", "wants"])) {
+  if (includesAny(lower, ["economics", "scarcity", "shortage", "surplus", "supply", "demand", "producer", "consumer", "resources", "needs", "wants"])) {
     return [namedChoiceQuestion(route, "economics", "What does scarcity mean?", "not enough resources for every want", ["not enough resources for every want", "a map symbol", "a national holiday"], "Scarcity means resources are limited.")];
   }
   if (includesAny(lower, ["city", "rural", "urban", "suburban", "latitude", "longitude", "states", "capitals", "grid", "land features"])) {
@@ -809,6 +917,12 @@ function socialStudiesQuestions(route: string, title: string): ExerciseQuestion[
   }
   if (includesAny(lower, ["then and now", "war", "revolution", "colony", "colonist", "ancient", "empire", "renaissance", "industrial", "expedition", "purchase", "new deal"])) {
     return [namedChoiceQuestion(route, "history", "What does a timeline show?", "events in order", ["events in order", "coin values", "sentence parts"], "A timeline organizes events by time.")];
+  }
+  if (includesAny(lower, ["martin luther king", "thanksgiving", "kwanzaa", "ramadan", "hinduism"])) {
+    return holidayCultureQuestions(route);
+  }
+  if (includesAny(lower, ["facts and opinions", "facts", "opinions"])) {
+    return argumentQuestions(route);
   }
   return [namedChoiceQuestion(route, "social-studies", "What does social studies help us learn about?", "people and places", ["people and places", "only numbers", "only spelling"], "Social studies includes people, places, communities, and history.")];
 }
@@ -825,13 +939,16 @@ function spanishQuestions(route: string, title: string): ExerciseQuestion[] {
   if (lower.includes("noun") || lower.includes("gender") || lower.includes("plural")) {
     return [namedChoiceQuestion(route, "noun-gender", "Which article usually goes with libro?", "el", ["el", "la", "las"], "Libro is usually masculine, so it uses el.")];
   }
-  if (lower.includes("verb") || lower.includes("ser") || lower.includes("estar") || lower.includes("tener")) {
+  if (lower.includes("verb") || lower.includes("ser") || lower.includes("estar") || lower.includes("tener") || includesWordAny(lower, ["ir", "ver"]) || lower.includes("gustar") || lower.includes("infinitive") || lower.includes("acabar")) {
     return [namedChoiceQuestion(route, "verb", "Complete the sentence: Yo __ estudiante.", "soy", ["soy", "eres", "son"], "Yo uses soy with ser.")];
   }
   if (lower.includes("alphabet")) {
     return [namedChoiceQuestion(route, "alphabet", "Which letter name is Spanish?", "a", ["a", "apple", "after"], "The Spanish alphabet includes the letter a.")];
   }
-  if (includesAny(lower, ["greeting", "goodbye", "introductions", "conversation", "response", "question", "personal information"])) {
+  if (includesAny(lower, ["listen", "match the statement", "identify the person", "describe an image"])) {
+    return spanishListeningQuestions(route);
+  }
+  if (includesAny(lower, ["greeting", "goodbye", "introductions", "conversation", "response", "question", "personal information", "how are you", "tu and usted", "tú and usted", "formal language"])) {
     return [namedChoiceQuestion(route, "conversation", "Which phrase is a Spanish greeting?", "hola", ["hola", "adios", "gracias"], "Hola is a common greeting.")];
   }
   if (includesAny(lower, ["country", "countries", "spanish-speaking"])) {
@@ -861,6 +978,9 @@ function spanishQuestions(route: string, title: string): ExerciseQuestion[] {
   if (includesAny(lower, ["telling time", "time expressions", "hours", "minutes", "frequency"])) {
     return [namedChoiceQuestion(route, "time", "Which phrase can mean at three o'clock?", "a las tres", ["a las tres", "la familia", "el agua"], "A las tres means at three o'clock.")];
   }
+  if (includesAny(lower, ["complete a letter", "write sentences", "respond to plans", "sentence structure"])) {
+    return spanishWritingQuestions(route);
+  }
   if (lower.includes("day") || lower.includes("week")) {
     return [namedChoiceQuestion(route, "days", "Which word is a day of the week in Spanish?", "lunes", ["lunes", "rojo", "uno"], "Lunes means Monday.")];
   }
@@ -875,22 +995,25 @@ function languageArtsMode(title: string) {
   if (lower.includes("syllable")) return "Syllables";
   if (includesAny(lower, ["blend", "digraph", "consonant"])) return "Consonant patterns";
   if (lower.includes("homophone")) return "Homophones";
-  if (includesAny(lower, ["simile", "metaphor", "figurative", "idiom"])) return "Figurative language";
+  if (includesAny(lower, ["simile", "metaphor", "figurative", "idiom", "personification"])) return "Figurative language";
   if (includesAny(lower, ["comma", "capital", "punctuation", "apostrophe", "quotation", "semicolon", "colon"])) return "Mechanics";
   if (includesAny(lower, ["dictionary", "reference", "thesaurus", "entry", "guide word"])) return "Reference skills";
   if (includesAny(lower, ["transition", "organize", "topic", "paragraph", "essay", "revise", "editing"])) return "Writing organization";
+  if (includesAny(lower, ["correct errors", "suggest appropriate revisions", "remove redundant", "comparisons", "signs"])) return "Editing and revision";
   if (includesAny(lower, ["book part", "book parts", "feature"])) return "Text features";
-  if (includesAny(lower, ["categor", "sort objects", "shades of meaning", "related words", "multiple meaning"])) return "Word relationships";
-  if (includesAny(lower, ["character", "dialogue", "point of view", "narrative", "historical fiction", "short stories", "passage", "passages", "theme", "tone"])) return "Literary analysis";
+  if (includesAny(lower, ["categor", "sort objects", "shades of meaning", "related words", "multiple meaning", "words that are the same", "same words"])) return "Word relationships";
+  if (includesAny(lower, ["character", "dialogue", "point of view", "narrative", "narrator", "myths", "legends", "fables", "historical fiction", "short stories", "passage", "passages", "theme", "tone"])) return "Literary analysis";
   if (includesAny(lower, ["claim", "evidence", "argument", "thesis", "counterclaim", "fact", "opinion", "audience", "purpose"])) return "Argument and evidence";
-  if (includesAny(lower, ["prefix", "suffix", "root", "roots", "base word", "analogies", "connotation", "precisely", "multiple-meaning", "figures of speech"])) return "Word study";
+  if (includesAny(lower, ["prefix", "suffix", "root", "roots", "base word", "words with", "pre-", "re-", "mis-", "sub-", "un-", "dis-", "in-", "im-", "non", "analogies", "connotation", "precisely", "multiple-meaning", "figures of speech"])) return "Word study";
   if (lower.includes("sight word")) return "Sight words";
   if (lower.includes("lowercase") || lower.includes("uppercase") || lower.includes("letter") || lower.includes("alphabet")) return "Letter recognition";
-  if (lower.includes("short vowel") || lower.includes("short a") || lower.includes("short e") || lower.includes("short i") || lower.includes("short o") || lower.includes("short u") || lower.includes("long vowel") || lower.includes("long a") || lower.includes("long e") || lower.includes("long i") || lower.includes("long o") || lower.includes("long u") || lower.includes("silent e") || lower.includes("vowel team") || lower.includes("vowel") || lower.includes("diphthong") || lower.includes("r-control") || lower.includes("r-controlled") || lower.includes("ending that you hear") || lower.includes("compound word")) return "Phonics";
+  if (lower.includes("short vowel") || lower.includes("short a") || lower.includes("short e") || lower.includes("short i") || lower.includes("short o") || lower.includes("short u") || lower.includes("long vowel") || lower.includes("long a") || lower.includes("long e") || lower.includes("long i") || lower.includes("long o") || lower.includes("long u") || lower.includes("silent e") || lower.includes("vowel team") || lower.includes("vowel") || lower.includes("diphthong") || lower.includes("r-control") || lower.includes("r-controlled") || lower.includes("ending that you hear") || lower.includes("complete the word") || lower.includes("matches the picture") || lower.includes("same ending") || lower.includes("read words") || lower.includes("-ss") || lower.includes("-ll") || lower.includes("-ff") || lower.includes("-zz") || lower.includes("-ck") || lower.includes("word: ng") || lower.includes("word-ng") || lower.includes("ng, nk") || lower.includes("ng and nk") || lower.includes("am and an") || lower.includes("compound word")) return "Phonics";
   if (lower.includes("rhyme") || lower.includes("sound") || lower.includes("begins") || lower.includes("starts")) return "Phonological awareness";
-  if (lower.includes("synonym") || lower.includes("antonym") || lower.includes("context")) return "Vocabulary";
-  if (lower.includes("sentence") || lower.includes("noun") || lower.includes("verb") || lower.includes("pronoun") || lower.includes("adjective") || lower.includes("plural") || lower.includes("possessive") || lower.includes("clause") || lower.includes("modifier") || lower.includes("prepositional phrase") || lower.includes("end mark")) return "Grammar";
+  if (lower.includes("synonym") || lower.includes("antonym") || lower.includes("context") || lower.includes("meaning") || lower.includes("domain-specific") || lower.includes("use number words") || lower.includes("use color words")) return "Vocabulary";
+  if (lower.includes("sentence") || lower.includes("noun") || lower.includes("verb") || lower.includes("pronoun") || lower.includes("adjective") || lower.includes("plural") || lower.includes("possessive") || lower.includes("clause") || lower.includes("modifier") || lower.includes("prepositional phrase") || lower.includes("end mark") || lower.includes("conjunction") || lower.includes("antecedent") || lower.includes("tense") || lower.includes("to be") || lower.includes("to have") || lower.includes("statement") || lower.includes("question") || lower.includes("exclamation") || lower.includes("one or more than one")) return "Grammar";
   if (lower.includes("story") || lower.includes("text") || lower.includes("plot") || lower.includes("main idea") || lower.includes("inference") || lower.includes("read about") || lower.includes("read realistic") || lower.includes("read animal") || lower.includes("read along") || lower.includes("fantasy") || lower.includes("what will happen next") || lower.includes("what is the picture about")) return "Reading comprehension";
+  if (includesAny(lower, ["what am i", "could happen in real life", "feeling matches", "which book title", "not like the others"])) return "Early comprehension";
+  if (includesAny(lower, ["inside and outside", "above and below", "location word", "who what when where or why", "who, what, when, where, or why", "abc order"])) return "Language concepts";
   return "Language skill review";
 }
 
@@ -898,8 +1021,12 @@ function spanishMode(title: string) {
   const lower = title.toLowerCase();
   if (lower.includes("number") || /\b0-10\b|\b11-20\b|\b21-31\b/.test(lower)) return "Spanish numbers";
   if (lower.includes("noun") || lower.includes("gender") || lower.includes("plural")) return "Spanish nouns";
-  if (lower.includes("verb") || lower.includes("ser") || lower.includes("estar") || lower.includes("tener")) return "Spanish verbs";
-  if (includesAny(lower, ["greeting", "goodbye", "introductions", "conversation", "response", "question", "personal information"])) return "Spanish conversation";
+  if (lower.includes("verb") || lower.includes("ser") || lower.includes("estar") || lower.includes("tener") || includesWordAny(lower, ["ir", "ver"]) || lower.includes("gustar") || lower.includes("infinitive") || lower.includes("acabar")) return "Spanish verbs";
+  if (lower.includes("alphabet")) return "Spanish alphabet";
+  if (includesAny(lower, ["listen", "match the statement", "identify the person", "describe an image"])) return "Spanish listening";
+  if (includesAny(lower, ["complete a letter", "write sentences", "respond to plans", "sentence structure"])) return "Spanish writing";
+  if (includesAny(lower, ["cognates", "parts of speech"])) return "Spanish word study";
+  if (includesAny(lower, ["greeting", "goodbye", "introductions", "conversation", "response", "question", "personal information", "how are you", "tu and usted", "tú and usted", "formal language"])) return "Spanish conversation";
   if (includesAny(lower, ["country", "countries", "spanish-speaking"])) return "Spanish-speaking countries";
   if (includesAny(lower, ["adjective", "appearance", "personalities", "agreement"])) return "Spanish adjectives";
   if (includesAny(lower, ["school", "class", "classes", "classroom", "supplies", "student"])) return "Spanish school vocabulary";
@@ -918,7 +1045,7 @@ function spanishMode(title: string) {
 function scienceMode(title: string) {
   const lower = title.toLowerCase();
   if (includesWordAny(lower, ["weather", "climate", "season", "hot", "cold", "temperature"])) return "Weather and climate";
-  if (includesWordAny(lower, ["push", "pull", "force", "motion", "magnet", "electric", "sound", "light"])) return "Physical science";
+  if (includesWordAny(lower, ["push", "pushes", "pull", "pulls", "force", "forces", "motion", "magnet", "electric", "sound", "light"])) return "Physical science";
   if (includesWordAny(lower, ["plant", "plants", "seed", "seeds", "root", "roots", "flower", "flowers", "moss", "fern"]) || lower.includes("photosynthesis")) return "Plants";
   if (includesWordAny(lower, ["animal", "animals", "habitat", "habitats", "survive", "life cycle", "body", "trait", "pollinator", "symbiotic"])) return "Animals and habitats";
   if (includesWordAny(lower, ["rock", "rocks", "mineral", "minerals", "fossil", "fossils", "soil", "water", "earth", "landform", "moon", "sun", "space", "topographic"])) return "Earth and space science";
@@ -929,19 +1056,22 @@ function scienceMode(title: string) {
   if (includesAny(lower, ["chemical", "chemistry", "reaction", "reactants", "products", "moles", "solubility", "equilibrium"])) return "Chemistry";
   if (includesAny(lower, ["kinematic", "coulomb", "magnet", "magnetism", "electricity", "charged", "thermal", "heat", "energy", "waves"])) return "Physics";
   if (includesAny(lower, ["unit", "units", "thermometer", "distance", "mass", "volume", "speed"])) return "Measurement units";
+  if (includesAny(lower, ["succession", "ecosystem", "biodiversity", "group behavior", "caribou", "coral reef", "gene mutations", "organisms"])) return "Ecology and organisms";
   return "Science concepts";
 }
 
 function socialStudiesMode(title: string) {
   const lower = title.toLowerCase();
-  if (includesAny(lower, ["scarcity", "shortage", "surplus", "supply", "demand", "producer", "consumer", "resources", "needs", "wants"])) return "Economics and resources";
+  if (includesAny(lower, ["economics", "scarcity", "shortage", "surplus", "supply", "demand", "producer", "consumer", "resources", "needs", "wants"])) return "Economics and resources";
   if (includesAny(lower, ["city", "cities", "rural", "urban", "suburban", "latitude", "longitude", "states", "capitals", "grid", "land features", "cardinal direction", "cardinal directions", "left and right"])) return "Geography and maps";
   if (includesAny(lower, ["law", "court", "constitution", "citizenship", "government", "election", "presidential"])) return "Civics and citizenship";
-  if (includesAny(lower, ["then and now", "war", "revolution", "colony", "colonist", "colonies", "ancient", "empire", "renaissance", "industrial", "expedition", "purchase", "new deal", "timeline", "bce", "ce", "washington", "statue of liberty", "white house", "independence day"])) return "History and chronology";
+  if (includesAny(lower, ["then and now", "war", "revolution", "colony", "colonist", "colonies", "ancient", "mesopotamia", "rome", "middle ages", "antebellum", "empire", "renaissance", "industrial", "expedition", "purchase", "new deal", "timeline", "bce", "ce", "washington", "statue of liberty", "white house", "independence day"])) return "History and chronology";
   if (includesWordAny(lower, ["map", "maps", "direction", "directions", "feature", "features", "location", "state", "states", "country", "continent", "region", "geography"])) return "Geography and maps";
   if (includesWordAny(lower, ["citizen", "community", "rule", "law", "government", "civic", "rights", "responsibilities"])) return "Civics and citizenship";
   if (includesWordAny(lower, ["history", "historical", "timeline", "past", "american", "symbol", "president", "colony", "revolution"])) return "History and symbols";
   if (includesWordAny(lower, ["job", "worker", "goods", "services", "money", "market", "economic", "business"])) return "Economics and community roles";
+  if (includesAny(lower, ["martin luther king", "thanksgiving", "kwanzaa", "ramadan", "hinduism"])) return "Culture and society";
+  if (includesAny(lower, ["facts and opinions", "facts", "opinions"])) return "Source analysis";
   if (includesWordAny(lower, ["culture", "holiday", "tradition", "religion", "civilization"])) return "Culture and society";
   if (includesWordAny(lower, ["source", "primary", "secondary", "artifact", "document"])) return "Source analysis";
   return "Social studies concepts";
@@ -974,24 +1104,32 @@ function reviewedMathMode(title: string) {
   if (includesAny(lower, ["expression", "evaluate", "equivalent expression", "numerical expression"])) return "Expressions";
   if (includesWordAny(lower, ["probability", "probabilities", "odds"]) || lower.includes("compound event")) return "Probability";
   if (includesWordAny(lower, ["integer", "integers"]) || includesAny(lower, ["absolute value", "opposite number"])) return "Integers and rational numbers";
-  if (includesAny(lower, ["equal parts", "halves", "thirds", "fourths", "eighths"])) return "Fractions";
+  if (includesAny(lower, ["equal parts", "half", "halves", "third", "thirds", "fourth", "fourths", "eighth", "eighths"])) return "Fractions";
   if (includesAny(lower, ["before, after", "sequence", "order", "greatest", "least", "compare numbers", "comparing numbers", "compare three numbers", "put decimal numbers"])) return "Number order and comparison";
   if (includesWordAny(lower, ["even", "odd"])) return "Even and odd numbers";
   if (includesAny(lower, ["fact families", "related facts"])) return "Fact families";
   if (includesAny(lower, ["number sentences", "which sign makes", "properties of equality"])) return "Equations";
   if (includesAny(lower, ["number names", "names of numbers", "spell word names", "write the number you hear"])) return "Number recognition";
-  if (includesAny(lower, ["tens and ones", "hundreds", "thousands", "regroup", "convert to/from", "make teen numbers", "take apart teen numbers", "ways to make a number"])) return "Place value";
+  if (includesAny(lower, ["decompose", "break apart", "tens and ones", "hundreds", "thousands", "regroup", "convert to/from", "make teen numbers", "take apart teen numbers", "ways to make a number"])) return "Place value";
   if (includesAny(lower, ["histogram", "quartiles", "interquartile", "standard deviation", "scatter plot", "trends"])) return "Data and graphs";
   if (includesAny(lower, ["factors", "divisibility"])) return "Factors and divisibility";
+  if (includesAny(lower, ["fluency zone"])) return "Math fluency";
+  if (includesAny(lower, ["roman numerals"])) return "Roman numerals";
+  if (includesAny(lower, ["location in a grid", "coordinate planes as maps"])) return "Coordinate grids";
+  if (includesAny(lower, ["conditionals", "truth tables", "truth values"])) return "Logic and truth values";
+  if (includesAny(lower, ["customary units", "metric systems", "mixed customary units"])) return "Unit conversion";
+  if (includesAny(lower, ["logarithms"])) return "Logarithm properties";
+  if (includesAny(lower, ["law of cosines"])) return "Trigonometry";
   if (includesAny(lower, ["calendar", "days of the week", "months of the year", "seasons of the year", "a.m.", "p.m.", "everyday events"])) return "Calendar and time contexts";
-  if (includesAny(lower, ["income", "spending", "saving", "charity", "wants", "needs", "earn", "job", "least number of coins", "making change", "coin values", "coin names"])) return "Financial literacy";
-  if (includesWordAny(lower, ["ratio", "rate", "proportion", "scale"])) return "Ratios and rates";
+  if (includesAny(lower, ["income", "spending", "saving", "charity", "wants", "needs", "earn", "job", "least number of coins", "making change", "coin values", "coin names", "deposit", "withdrawal", "producer", "consumer", "cost to produce"])) return "Financial literacy";
+  if (includesWordAny(lower, ["ratio", "ratios", "rate", "rates", "proportion", "proportions", "scale"])) return "Ratios and rates";
   if (includesWordAny(lower, ["percent", "discount", "tax", "interest", "markup"])) return "Percents";
   if (includesAny(lower, ["pythagorean", "triangle", "angle", "line", "ray", "segment", "circle", "polygon", "similarity", "congruence", "theorem", "proof", "construct", "perpendicular", "parallel", "trigonometric"])) return "Geometry reasoning";
   if (includesAny(lower, ["function", "transform", "slope", "linear", "quadratic", "parabola", "ellipse", "hyperbola", "conic", "foci"])) return "Functions and graphs";
   if (includesAny(lower, ["limit", "continuous", "continuity", "derivative", "velocity", "rate of change", "intermediate-value"])) return "Calculus concepts";
   if (includesAny(lower, ["matrix", "matrices", "vector", "complex"])) return "Advanced algebra";
   if (includesAny(lower, ["decimal", "round", "estimate"])) return "Decimals and rounding";
+  if (includesAny(lower, ["indirect comparison"])) return "Measurement words";
   return "Math concept review";
 }
 
@@ -1001,20 +1139,28 @@ function reviewedMathQuestions(route: string, title: string): ExerciseQuestion[]
   if (includesAny(lower, ["expression", "evaluate", "equivalent expression", "numerical expression"])) return expressionQuestions(route);
   if (includesWordAny(lower, ["probability", "probabilities", "odds"]) || lower.includes("compound event")) return probabilityQuestions(route);
   if (includesWordAny(lower, ["integer", "integers"]) || includesAny(lower, ["absolute value", "opposite number"])) return integerQuestions(route);
-  if (includesAny(lower, ["equal parts", "halves", "thirds", "fourths", "eighths"])) return fractionQuestions(route, title);
+  if (includesAny(lower, ["equal parts", "half", "halves", "third", "thirds", "fourth", "fourths", "eighth", "eighths"])) return fractionQuestions(route, title);
   if (includesAny(lower, ["before, after", "sequence", "order", "greatest", "least", "compare numbers", "comparing numbers", "compare three numbers", "put decimal numbers"])) return numberOrderQuestions(route);
   if (includesWordAny(lower, ["even", "odd"])) return evenOddQuestions(route);
   if (includesAny(lower, ["fact families", "related facts"])) return factFamilyQuestions(route);
   if (includesAny(lower, ["number sentences", "which sign makes", "properties of equality"])) return algebraQuestions(route);
   if (includesAny(lower, ["number names", "names of numbers", "spell word names", "write the number you hear"])) return identifyNumberQuestions(route, Math.min(maxFromRoute(route, title), 20));
-  if (includesAny(lower, ["tens and ones", "hundreds", "thousands", "regroup", "convert to/from", "make teen numbers", "take apart teen numbers", "ways to make a number"])) return placeValueQuestions(route, title);
+  if (includesAny(lower, ["decompose", "break apart", "tens and ones", "hundreds", "thousands", "regroup", "convert to/from", "make teen numbers", "take apart teen numbers", "ways to make a number"])) return placeValueQuestions(route, title);
   if (includesAny(lower, ["histogram", "quartiles", "interquartile", "standard deviation", "scatter plot", "trends"])) return dataQuestions(route);
   if (includesAny(lower, ["factors", "divisibility"])) return [namedChoiceQuestion(route, "factor", "Which number is a factor of 12?", "3", ["3", "5", "7"], "3 is a factor of 12 because 3 x 4 = 12.")];
+  if (includesAny(lower, ["fluency zone"])) return [...additionQuestions(route, 20), ...subtractionQuestions(route, 20)];
+  if (includesAny(lower, ["roman numerals"])) return romanNumeralQuestions(route);
+  if (includesAny(lower, ["location in a grid", "coordinate planes as maps"])) return [namedChoiceQuestion(route, "grid", "Which ordered pair names column 2, row 3?", "(2, 3)", ["(2, 3)", "(3, 2)", "(5, 1)"], "Grid locations use the horizontal position first, then the vertical position.")];
+  if (includesAny(lower, ["conditionals", "truth tables", "truth values"])) return logicQuestions(route);
+  if (includesAny(lower, ["customary units", "metric systems", "mixed customary units"])) return unitConversionQuestions(route);
+  if (includesAny(lower, ["logarithms"])) return [namedChoiceQuestion(route, "log-product", "Which rule matches log(ab)?", "log(a) + log(b)", ["log(a) + log(b)", "log(a) - log(b)", "ab"], "The product property rewrites a logarithm of a product as a sum.")];
+  if (includesAny(lower, ["law of cosines"])) return [namedChoiceQuestion(route, "law-cosines", "The Law of Cosines is most useful for which triangle information?", "two sides and the included angle", ["two sides and the included angle", "only one side", "only right angles"], "The Law of Cosines relates side lengths and the included angle.")];
   if (includesAny(lower, ["calendar", "days of the week", "months of the year", "seasons of the year", "a.m.", "p.m.", "everyday events"])) return calendarQuestions(route);
-  if (includesAny(lower, ["income", "spending", "saving", "charity", "wants", "needs", "earn", "job", "least number of coins", "making change", "coin values", "coin names"])) return financialQuestions(route);
-  if (includesWordAny(lower, ["ratio", "rate", "proportion", "scale", "percent", "discount", "tax", "interest", "markup"])) return ratioPercentQuestions(route, title);
+  if (includesAny(lower, ["income", "spending", "saving", "charity", "wants", "needs", "earn", "job", "least number of coins", "making change", "coin values", "coin names", "deposit", "withdrawal", "producer", "consumer", "cost to produce"])) return financialQuestions(route);
+  if (includesWordAny(lower, ["ratio", "ratios", "rate", "rates", "proportion", "proportions", "scale", "percent", "discount", "tax", "interest", "markup"])) return ratioPercentQuestions(route, title);
   if (includesAny(lower, ["pythagorean", "triangle", "angle", "line", "ray", "segment", "circle", "polygon", "similarity", "congruence", "theorem", "proof", "construct", "perpendicular", "parallel", "trigonometric"])) return geometryQuestions(route, title);
   if (includesAny(lower, ["function", "transform", "slope", "linear", "quadratic", "parabola", "ellipse", "hyperbola", "conic", "foci", "limit", "continuous", "continuity", "derivative", "velocity", "rate of change", "intermediate-value"])) return functionQuestions(route, title);
+  if (includesAny(lower, ["indirect comparison"])) return sizeQuestions(route, title);
   return genericChoiceQuestions(route, title);
 }
 
@@ -1044,6 +1190,10 @@ export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | unde
     mode = "Number lines and charts";
     summary = "Practice locating, ordering, and counting numbers on lines and charts.";
     questions = numberLineQuestions(route, max);
+  } else if (includesAny(lower, ["absolute-values-of-complex-numbers", "absolute values of complex numbers"])) {
+    mode = "Advanced algebra";
+    summary = "Practice interpreting complex numbers and their distance from zero.";
+    questions = [namedChoiceQuestion(route, "complex-absolute-value", "What is the absolute value of 3 + 4i?", "5", ["5", "7", "1"], "The absolute value is the distance from zero: sqrt(3^2 + 4^2) = 5.")];
   } else if (includesAny(lower, ["right-triangle", "right triangle", "pythagorean", "trigonometric"])) {
     mode = "Geometry reasoning";
     summary = "Practice geometric relationships, right triangles, and angle reasoning.";
@@ -1092,6 +1242,10 @@ export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | unde
     mode = "Counting order";
     summary = `Practice naming the next number up to ${max}.`;
     questions = nextNumberQuestions(route, max);
+  } else if (lower.includes("what-comes-next") || lower.includes("what comes next")) {
+    mode = "Patterns";
+    summary = "Practice recognizing and extending visual patterns.";
+    questions = patternQuestions(route, title);
   } else if (lower.includes("counting-order") || lower.includes("count up") || lower.includes("put-numbers") || lower.includes("put numbers") || lower.includes("sequence") || lower.includes("before-after") || lower.includes("before, after")) {
     mode = "Counting order";
     summary = `Practice ordering and counting numbers up to ${max}.`;
@@ -1116,7 +1270,7 @@ export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | unde
     mode = "One less";
     summary = `Practice finding one less up to ${max}.`;
     questions = oneMoreLessQuestions(route, max, "less");
-  } else if (lower.includes("compare-groups") || lower.includes("fewer") || lower.includes("more") || lower.includes("same-number") || lower.includes("enough")) {
+  } else if (lower.includes("compare-groups") || lower.includes("compare-by-matching") || lower.includes("compare by matching") || lower.includes("fewer") || lower.includes("more") || lower.includes("same-number") || lower.includes("enough")) {
     mode = "Compare groups";
     summary = "Practice comparing groups by matching and counting.";
     questions = compareGroupQuestions(route);
@@ -1144,7 +1298,7 @@ export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | unde
     mode = "Measurement words";
     summary = "Practice comparing size, weight, and capacity.";
     questions = sizeQuestions(route, title);
-  } else if (["pennies", "nickels", "dimes", "quarters", "money"].some((word) => lower.includes(word))) {
+  } else if (["pennies", "nickels", "dimes", "quarters", "money", "coins", "change"].some((word) => lower.includes(word))) {
     mode = "Money";
     summary = "Practice recognizing coins and counting pennies.";
     questions = moneyQuestions(route, title);
@@ -1160,12 +1314,40 @@ export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | unde
     mode = "Subtraction";
     summary = `Practice taking away from numbers up to ${max}.`;
     questions = subtractionQuestions(route, max);
-  } else if (["circle", "triangle", "rectangle", "square", "shape", "solid", "sphere", "cube", "cone", "cylinder", "corner", "side"].some((word) => lower.includes(word))) {
+  } else if (["circle", "triangle", "rectangle", "square", "hexagon", "rhombus", "quadrilateral", "pentagon", "shape", "solid", "sphere", "cube", "cone", "cylinder", "corner", "side", "curved", "vertices", "vertex", "edge", "face", "geometric object"].some((word) => lower.includes(word))) {
     mode = "Shapes";
     summary = "Practice naming and describing shapes.";
     questions = shapeQuestions(route, title);
   } else if (lower.includes("number")) {
-    if (includesAny(lower, ["number sentences", "which sign makes"])) {
+    if (includesAny(lower, ["percents-of-numbers", "percents of numbers"])) {
+      mode = "Percents";
+      summary = "Practice finding and interpreting percents of numbers.";
+      questions = ratioPercentQuestions(route, title);
+    } else if (includesAny(lower, ["number-of-outcomes", "number of outcomes"])) {
+      mode = "Probability";
+      summary = "Practice counting possible outcomes.";
+      questions = probabilityQuestions(route);
+    } else if (includesAny(lower, ["rational-and-irrational", "rational and irrational", "rational-numbers", "rational numbers"])) {
+      mode = "Integers and rational numbers";
+      summary = "Practice classifying and comparing rational and irrational numbers.";
+      questions = integerQuestions(route);
+    } else if (includesAny(lower, ["number-of-days-in-each-month", "number of days in each month"])) {
+      mode = "Calendar and time contexts";
+      summary = "Practice calendar facts and time contexts.";
+      questions = calendarQuestions(route);
+    } else if (includesAny(lower, ["estimate-sums", "estimate sums", "estimate-differences", "estimate differences", "estimate-products", "estimate products", "compatible-numbers", "compatible numbers"])) {
+      mode = "Decimals and rounding";
+      summary = "Practice estimating with compatible numbers.";
+      questions = [namedChoiceQuestion(route, "estimate", "Which is the best estimate for 198 + 403?", "600", ["600", "300", "900"], "198 is close to 200 and 403 is close to 400, so the sum is about 600.")];
+    } else if (includesAny(lower, ["particular-product", "particular product", "particular-sum", "particular sum", "particular-difference", "particular difference", "particular-quotient", "particular quotient", "sum-and-difference", "sum and difference", "10-or-100-times", "10 or 100 times"])) {
+      mode = "Number reasoning";
+      summary = "Practice choosing numbers that satisfy operation clues.";
+      questions = [namedChoiceQuestion(route, "operation-clue", "Which pair has a product of 24?", "4 and 6", ["4 and 6", "4 and 5", "3 and 7"], "4 x 6 = 24, so that pair matches the clue.")];
+    } else if (includesAny(lower, ["guess-the-number", "guess the number"])) {
+      mode = "Number reasoning";
+      summary = "Practice using clues to identify a number.";
+      questions = [namedChoiceQuestion(route, "guess", "I am greater than 20 and less than 30. I have 5 ones. What number am I?", "25", ["25", "15", "35"], "25 is between 20 and 30 and has 5 ones.")];
+    } else if (includesAny(lower, ["number sentences", "which sign makes"])) {
       mode = "Equations";
       summary = "Practice writing and completing number sentences.";
       questions = algebraQuestions(route);
@@ -1173,11 +1355,11 @@ export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | unde
       mode = "Number recognition";
       summary = "Practice connecting number words, spoken numbers, and numerals.";
       questions = identifyNumberQuestions(route, Math.min(max, 20));
-    } else if (includesAny(lower, ["compare-three-numbers", "compare three numbers", "comparing-numbers", "comparing numbers", "put-decimal-numbers", "put decimal numbers", "greatest-least", "greatest/least"])) {
+    } else if (includesAny(lower, ["order-numbers", "order numbers", "compare-decimal-numbers", "compare decimal numbers", "compare-three-numbers", "compare three numbers", "comparing-numbers", "comparing numbers", "put-decimal-numbers", "put decimal numbers", "greatest-least", "greatest/least"])) {
       mode = "Number order and comparison";
       summary = "Practice ordering and comparing numbers.";
       questions = numberOrderQuestions(route);
-    } else if (includesAny(lower, ["tens-and-ones", "tens and ones", "hundreds", "thousands", "regroup", "convert-to-from", "convert to/from", "make-teen-numbers", "make teen numbers", "take-apart-teen-numbers", "take apart teen numbers", "ways-to-make-a-number", "ways to make a number"])) {
+    } else if (includesAny(lower, ["decompose", "break-apart", "break apart", "build-and-break-apart", "build and break apart", "tens-and-ones", "tens and ones", "hundreds", "thousands", "regroup", "convert-to-from", "convert to/from", "make-teen-numbers", "make teen numbers", "take-apart-teen-numbers", "take apart teen numbers", "ways-to-make-a-number", "ways to make a number"])) {
       mode = "Place value";
       summary = "Practice composing, decomposing, and regrouping place-value units.";
       questions = placeValueQuestions(route, title);
