@@ -50,6 +50,14 @@ function range(max: number) {
   return Array.from({ length: max }, (_, index) => index + 1);
 }
 
+function includesAny(text: string, terms: string[]) {
+  return terms.some((term) => text.includes(term));
+}
+
+function includesWordAny(text: string, terms: string[]) {
+  return terms.some((term) => new RegExp(`\\b${term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`).test(text));
+}
+
 function practiceNumbers(max: number) {
   if (max <= 20) return range(max);
   const values = new Set([1, 10, 25, 50, 100, max].filter((value) => value <= max));
@@ -294,7 +302,7 @@ function classifyQuestions(route: string, title: string): ExerciseQuestion[] {
 function shapeQuestions(route: string, title: string): ExerciseQuestion[] {
   const lower = title.toLowerCase();
   const shape = [...flatShapes, ...solidShapes].find((candidate) => lower.includes(candidate)) ?? (lower.includes("solid") ? "cube" : "circle");
-  const choices = lower.includes("solid") ? solidShapes : flatShapes;
+  const choices = solidShapes.includes(shape) || lower.includes("solid") ? solidShapes : flatShapes;
   if (lower.includes("side")) {
     return [namedChoiceQuestion(route, "sides", "How many sides does a triangle have?", "3", ["0", "3", "4"], "A triangle has 3 sides.", "triangle")];
   }
@@ -472,8 +480,116 @@ function algebraQuestions(route: string): ExerciseQuestion[] {
   ];
 }
 
+function measurementQuestions(route: string, title: string): ExerciseQuestion[] {
+  const lower = title.toLowerCase();
+  if (lower.includes("ruler") || lower.includes("inch") || lower.includes("centimeter")) {
+    return [
+      namedChoiceQuestion(route, "ruler", "A line starts at 0 and ends at 6 on a ruler. How long is it?", "6 units", ["4 units", "6 units", "8 units"], "Measure from 0 to the ending mark."),
+      namedChoiceQuestion(route, "compare-length", "Which object is longer?", "8 inches", ["5 inches", "8 inches", "3 inches"], "8 inches is the greatest length shown.")
+    ];
+  }
+  if (lower.includes("area")) {
+    return [namedChoiceQuestion(route, "area", "A rectangle is 4 units long and 3 units wide. What is its area?", "12 square units", ["7 square units", "12 square units", "14 square units"], "Area is length times width, so 4 x 3 = 12.")];
+  }
+  if (lower.includes("volume")) {
+    return [namedChoiceQuestion(route, "volume", "A prism has 3 layers of 4 cubes. What is the volume?", "12 cubic units", ["7 cubic units", "12 cubic units", "24 cubic units"], "Volume counts cubic units, so 3 x 4 = 12.")];
+  }
+  return sizeQuestions(route, title);
+}
+
+function wordProblemQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "word-problem-plan", "A problem asks for the total after two groups are joined. Which operation should you use?", "addition", ["addition", "subtraction", "division"], "Joining groups asks for a total, so addition fits."),
+    namedChoiceQuestion(route, "multi-step", "What should you do first in a multi-step problem?", "identify what is being asked", ["identify what is being asked", "guess an answer", "ignore the units"], "Understanding the question tells you which steps are needed.")
+  ];
+}
+
+function expressionQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "evaluate", "Evaluate 3 + 4 x 2.", "11", ["14", "11", "10"], "Multiply before adding: 4 x 2 = 8, then 3 + 8 = 11."),
+    namedChoiceQuestion(route, "equivalent", "Which expression is equivalent to 2(x + 3)?", "2x + 6", ["2x + 6", "x + 6", "2x + 3"], "Use the distributive property.")
+  ];
+}
+
+function integerQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "integer-compare", "Which number is less than -2?", "-5", ["3", "-1", "-5"], "On a number line, -5 is left of -2."),
+    namedChoiceQuestion(route, "integer-add", "What is -3 + 8?", "5", ["-11", "5", "-5"], "Move 8 spaces right from -3 to land on 5.")
+  ];
+}
+
+function ratioPercentQuestions(route: string, title: string): ExerciseQuestion[] {
+  const lower = title.toLowerCase();
+  if (lower.includes("percent")) {
+    return [
+      namedChoiceQuestion(route, "percent", "What is 25% of 80?", "20", ["20", "25", "40"], "25% is one fourth, and one fourth of 80 is 20."),
+      namedChoiceQuestion(route, "percent-change", "A price goes from $50 to $60. What is the increase?", "20%", ["10%", "20%", "60%"], "The increase is 10, and 10 is 20% of 50.")
+    ];
+  }
+  return [
+    namedChoiceQuestion(route, "ratio", "Which ratio matches 2 red counters and 3 blue counters?", "2:3", ["2:3", "3:2", "5:2"], "The ratio red to blue is 2 to 3."),
+    namedChoiceQuestion(route, "rate", "A car travels 120 miles in 2 hours. What is the unit rate?", "60 miles per hour", ["60 miles per hour", "122 miles per hour", "240 miles per hour"], "Divide miles by hours: 120 / 2 = 60.")
+  ];
+}
+
+function probabilityQuestions(route: string): ExerciseQuestion[] {
+  return [
+    namedChoiceQuestion(route, "simple-probability", "A bag has 1 red tile and 3 blue tiles. What is the probability of red?", "1/4", ["1/4", "3/4", "1/3"], "There is 1 red tile out of 4 total tiles."),
+    namedChoiceQuestion(route, "compound-probability", "Two fair coins are flipped. Which outcome is possible?", "heads then tails", ["heads then tails", "only heads always", "three tails"], "Each coin can land heads or tails.")
+  ];
+}
+
+function geometryQuestions(route: string, title: string): ExerciseQuestion[] {
+  const lower = title.toLowerCase();
+  if (includesAny(lower, ["pythagorean", "right triangle", "trigonometric", "sine", "cosine", "tangent"])) {
+    return [namedChoiceQuestion(route, "right-triangle", "In a right triangle with legs 3 and 4, what is the hypotenuse?", "5", ["5", "6", "7"], "Use 3-4-5 right triangle facts.")];
+  }
+  if (includesAny(lower, ["similarity", "similar", "congruence", "congruent", "theorem", "proof", "prove"])) {
+    return [namedChoiceQuestion(route, "geometry-proof", "Which information can prove triangles congruent?", "two sides and the included angle", ["two sides and the included angle", "only one side", "only one angle"], "SAS uses two sides and the included angle.")];
+  }
+  if (includesAny(lower, ["perpendicular", "parallel", "construct"])) {
+    return [namedChoiceQuestion(route, "construction", "Two lines that meet to form right angles are called what?", "perpendicular", ["parallel", "perpendicular", "curved"], "Perpendicular lines meet at right angles.")];
+  }
+  return [namedChoiceQuestion(route, "geometry", "A triangle has how many sides?", "3", ["3", "4", "5"], "A triangle has three sides.")];
+}
+
+function functionQuestions(route: string, title: string): ExerciseQuestion[] {
+  const lower = title.toLowerCase();
+  if (includesAny(lower, ["ellipse", "parabola", "hyperbola", "conic", "foci"])) {
+    return [namedChoiceQuestion(route, "conic", "Which word names the fixed points used to define an ellipse?", "foci", ["foci", "slopes", "intercepts"], "The fixed points of an ellipse are called foci.")];
+  }
+  if (includesAny(lower, ["limit", "continuous", "continuity", "derivative", "velocity", "rate of change"])) {
+    return [namedChoiceQuestion(route, "calculus", "Average rate of change compares change in output to what?", "change in input", ["change in input", "the largest value only", "the y-intercept only"], "Rate of change is change in output divided by change in input.")];
+  }
+  return [namedChoiceQuestion(route, "function-transform", "What does f(x) + 3 do to a graph?", "shifts it up 3", ["shifts it up 3", "shifts it left 3", "reflects it"], "Adding 3 outside the function shifts the graph up.")];
+}
+
 function languageArtsQuestions(route: string, title: string): ExerciseQuestion[] {
   const lower = title.toLowerCase();
+  if (lower.includes("syllable")) {
+    return [
+      namedChoiceQuestion(route, "syllables", "How many syllables are in basket?", "2", ["1", "2", "3"], "Basket has two beats: bas-ket."),
+      namedChoiceQuestion(route, "combine-syllables", "Put the syllables sun and set together.", "sunset", ["sunset", "setsun", "sun"], "The syllables make the word sunset.")
+    ];
+  }
+  if (includesAny(lower, ["blend", "digraph", "consonant"])) {
+    return [namedChoiceQuestion(route, "blend", "Which word begins with the blend bl?", "blue", ["blue", "cat", "run"], "Blue begins with the consonant blend bl.")];
+  }
+  if (lower.includes("homophone")) {
+    return [namedChoiceQuestion(route, "homophone", "Which word sounds like sea?", "see", ["see", "say", "sit"], "Sea and see sound alike but have different meanings.")];
+  }
+  if (includesAny(lower, ["simile", "metaphor", "figurative", "idiom"])) {
+    return [namedChoiceQuestion(route, "figurative", "Which sentence uses a simile?", "The snow was like a blanket.", ["The snow was like a blanket.", "The snow fell.", "The snow is cold."], "A simile compares using like or as.")];
+  }
+  if (includesAny(lower, ["comma", "capital", "punctuation", "apostrophe", "quotation", "semicolon", "colon"])) {
+    return [namedChoiceQuestion(route, "mechanics", "Which sentence uses a comma correctly?", "Yes, I can help.", ["Yes, I can help.", "Yes I, can help.", "Yes I can, help."], "The comma separates the introductory yes from the rest of the sentence.")];
+  }
+  if (includesAny(lower, ["dictionary", "reference", "thesaurus", "entry", "guide word"])) {
+    return [namedChoiceQuestion(route, "reference", "Which reference source helps you find word meanings?", "dictionary", ["dictionary", "calendar", "map"], "A dictionary gives meanings, pronunciations, and word forms.")];
+  }
+  if (includesAny(lower, ["transition", "organize", "topic", "paragraph", "essay", "revise", "editing"])) {
+    return [namedChoiceQuestion(route, "writing", "Which transition shows contrast?", "however", ["however", "also", "first"], "However signals a contrast between ideas.")];
+  }
   if (lower.includes("sight words") || lower.includes("sight word")) {
     return [
       namedChoiceQuestion(route, "sight-word-read", "Which word is the sight word after?", "after", ["after", "again", "around"], "The word after is spelled a-f-t-e-r."),
@@ -588,6 +704,15 @@ function spanishQuestions(route: string, title: string): ExerciseQuestion[] {
   if (lower.includes("alphabet")) {
     return [namedChoiceQuestion(route, "alphabet", "Which letter name is Spanish?", "a", ["a", "apple", "after"], "The Spanish alphabet includes the letter a.")];
   }
+  if (includesAny(lower, ["greeting", "goodbye", "introductions", "conversation", "response", "question", "personal information"])) {
+    return [namedChoiceQuestion(route, "conversation", "Which phrase is a Spanish greeting?", "hola", ["hola", "adios", "gracias"], "Hola is a common greeting.")];
+  }
+  if (includesAny(lower, ["country", "countries", "spanish-speaking"])) {
+    return [namedChoiceQuestion(route, "countries", "Which country is Spanish-speaking?", "Mexico", ["Mexico", "Japan", "Germany"], "Spanish is widely spoken in Mexico.")];
+  }
+  if (includesAny(lower, ["adjective", "appearance", "personalities", "agreement"])) {
+    return [namedChoiceQuestion(route, "adjective", "Which Spanish adjective can mean tall?", "alto", ["alto", "rojo", "lunes"], "Alto can describe someone as tall.")];
+  }
   if (lower.includes("day") || lower.includes("week")) {
     return [namedChoiceQuestion(route, "days", "Which word is a day of the week in Spanish?", "lunes", ["lunes", "rojo", "uno"], "Lunes means Monday.")];
   }
@@ -599,6 +724,15 @@ function spanishQuestions(route: string, title: string): ExerciseQuestion[] {
 
 function languageArtsMode(title: string) {
   const lower = title.toLowerCase();
+  if (lower.includes("syllable")) return "Syllables";
+  if (includesAny(lower, ["blend", "digraph", "consonant"])) return "Consonant patterns";
+  if (lower.includes("homophone")) return "Homophones";
+  if (includesAny(lower, ["simile", "metaphor", "figurative", "idiom"])) return "Figurative language";
+  if (includesAny(lower, ["comma", "capital", "punctuation", "apostrophe", "quotation", "semicolon", "colon"])) return "Mechanics";
+  if (includesAny(lower, ["dictionary", "reference", "thesaurus", "entry", "guide word"])) return "Reference skills";
+  if (includesAny(lower, ["transition", "organize", "topic", "paragraph", "essay", "revise", "editing"])) return "Writing organization";
+  if (includesAny(lower, ["book part", "book parts", "feature"])) return "Text features";
+  if (includesAny(lower, ["categor", "sort objects", "shades of meaning", "related words", "multiple meaning"])) return "Word relationships";
   if (lower.includes("sight word")) return "Sight words";
   if (lower.includes("lowercase") || lower.includes("uppercase") || lower.includes("letter") || lower.includes("alphabet")) return "Letter recognition";
   if (lower.includes("short vowel") || lower.includes("short a") || lower.includes("short e") || lower.includes("short i") || lower.includes("short o") || lower.includes("short u") || lower.includes("long vowel") || lower.includes("long a") || lower.includes("long e") || lower.includes("long i") || lower.includes("long o") || lower.includes("long u") || lower.includes("silent e") || lower.includes("vowel team")) return "Phonics";
@@ -606,7 +740,7 @@ function languageArtsMode(title: string) {
   if (lower.includes("synonym") || lower.includes("antonym") || lower.includes("context")) return "Vocabulary";
   if (lower.includes("sentence") || lower.includes("noun") || lower.includes("verb") || lower.includes("pronoun") || lower.includes("adjective")) return "Grammar";
   if (lower.includes("story") || lower.includes("text") || lower.includes("plot") || lower.includes("main idea") || lower.includes("inference")) return "Reading comprehension";
-  return "Language arts practice";
+  return "Language skill review";
 }
 
 function spanishMode(title: string) {
@@ -614,9 +748,36 @@ function spanishMode(title: string) {
   if (lower.includes("number") || /\b0-10\b|\b11-20\b|\b21-31\b/.test(lower)) return "Spanish numbers";
   if (lower.includes("noun") || lower.includes("gender") || lower.includes("plural")) return "Spanish nouns";
   if (lower.includes("verb") || lower.includes("ser") || lower.includes("estar") || lower.includes("tener")) return "Spanish verbs";
+  if (includesAny(lower, ["greeting", "goodbye", "introductions", "conversation", "response", "question", "personal information"])) return "Spanish conversation";
+  if (includesAny(lower, ["country", "countries", "spanish-speaking"])) return "Spanish-speaking countries";
+  if (includesAny(lower, ["adjective", "appearance", "personalities", "agreement"])) return "Spanish adjectives";
   if (lower.includes("color")) return "Spanish colors";
-  if (lower.includes("day") || lower.includes("week")) return "Spanish calendar";
-  return "Spanish practice";
+  if (lower.includes("day") || lower.includes("week") || lower.includes("month") || lower.includes("date")) return "Spanish calendar";
+  if (lower.includes("weather") || lower.includes("season")) return "Spanish weather";
+  return "Spanish communication";
+}
+
+function scienceMode(title: string) {
+  const lower = title.toLowerCase();
+  if (includesWordAny(lower, ["weather", "climate", "season", "hot", "cold", "temperature"])) return "Weather and climate";
+  if (includesWordAny(lower, ["push", "pull", "force", "motion", "magnet", "electric", "sound", "light"])) return "Physical science";
+  if (includesWordAny(lower, ["plant", "plants", "seed", "seeds", "root", "roots", "flower", "flowers"]) || lower.includes("photosynthesis")) return "Plants";
+  if (includesWordAny(lower, ["animal", "habitat", "survive", "life cycle", "body", "trait"])) return "Animals and habitats";
+  if (includesWordAny(lower, ["rock", "soil", "water", "earth", "landform", "moon", "sun", "space"])) return "Earth and space science";
+  if (includesWordAny(lower, ["matter", "solid", "liquid", "gas", "material", "property"])) return "Matter and materials";
+  if (includesWordAny(lower, ["experiment", "evidence", "observe", "data", "model", "investigation", "formula", "formulas"])) return "Science practices";
+  return "Science concepts";
+}
+
+function socialStudiesMode(title: string) {
+  const lower = title.toLowerCase();
+  if (includesWordAny(lower, ["map", "direction", "feature", "location", "state", "country", "continent", "region", "geography"])) return "Geography and maps";
+  if (includesWordAny(lower, ["citizen", "community", "rule", "law", "government", "civic", "rights", "responsibilities"])) return "Civics and citizenship";
+  if (includesWordAny(lower, ["history", "historical", "timeline", "past", "american", "symbol", "president", "colony", "revolution"])) return "History and symbols";
+  if (includesWordAny(lower, ["job", "worker", "goods", "services", "money", "market", "economic", "business"])) return "Economics and community roles";
+  if (includesWordAny(lower, ["culture", "holiday", "tradition", "religion", "civilization"])) return "Culture and society";
+  if (includesWordAny(lower, ["source", "primary", "secondary", "artifact", "document"])) return "Source analysis";
+  return "Social studies concepts";
 }
 
 function nonMathExerciseSet(route: string, title: string): ExerciseSet {
@@ -624,10 +785,10 @@ function nonMathExerciseSet(route: string, title: string): ExerciseSet {
     return { route, title, mode: languageArtsMode(title), summary: "Practice reading, writing, vocabulary, grammar, or comprehension with short questions.", questions: languageArtsQuestions(route, title) };
   }
   if (route.startsWith("/science/")) {
-    return { route, title, mode: "Science practice", summary: "Practice science ideas with evidence-based questions.", questions: scienceQuestions(route, title) };
+    return { route, title, mode: scienceMode(title), summary: "Practice science ideas with evidence-based questions.", questions: scienceQuestions(route, title) };
   }
   if (route.startsWith("/social-studies/")) {
-    return { route, title, mode: "Social studies practice", summary: "Practice civics, geography, history, economics, and culture concepts.", questions: socialStudiesQuestions(route, title) };
+    return { route, title, mode: socialStudiesMode(title), summary: "Practice civics, geography, history, economics, and culture concepts.", questions: socialStudiesQuestions(route, title) };
   }
   if (route.startsWith("/spanish/")) {
     return { route, title, mode: spanishMode(title), summary: "Practice Spanish vocabulary, grammar, and context skills.", questions: spanishQuestions(route, title) };
@@ -640,8 +801,37 @@ function maxFromRoute(route: string, title: string) {
   return Math.min(Number(match?.[1] ?? match?.[2] ?? 20), 1000);
 }
 
+function reviewedMathMode(title: string) {
+  const lower = title.toLowerCase();
+  if (includesAny(lower, ["word problem", "multi-step", "real-world"])) return "Math word problems";
+  if (includesAny(lower, ["expression", "evaluate", "equivalent expression", "numerical expression"])) return "Expressions";
+  if (includesWordAny(lower, ["probability", "odds"]) || lower.includes("compound event")) return "Probability";
+  if (includesWordAny(lower, ["integer"]) || includesAny(lower, ["absolute value", "opposite number"])) return "Integers and rational numbers";
+  if (includesWordAny(lower, ["ratio", "rate", "proportion", "scale"])) return "Ratios and rates";
+  if (includesWordAny(lower, ["percent", "discount", "tax", "interest", "markup"])) return "Percents";
+  if (includesAny(lower, ["pythagorean", "triangle", "angle", "line", "ray", "segment", "circle", "polygon", "similarity", "congruence", "theorem", "proof", "construct", "perpendicular", "parallel", "trigonometric"])) return "Geometry reasoning";
+  if (includesAny(lower, ["function", "transform", "slope", "linear", "quadratic", "parabola", "ellipse", "hyperbola", "conic", "foci"])) return "Functions and graphs";
+  if (includesAny(lower, ["limit", "continuous", "continuity", "derivative", "velocity", "rate of change", "intermediate-value"])) return "Calculus concepts";
+  if (includesAny(lower, ["matrix", "matrices", "vector", "complex"])) return "Advanced algebra";
+  if (includesAny(lower, ["decimal", "round", "estimate"])) return "Decimals and rounding";
+  return "Math concept review";
+}
+
+function reviewedMathQuestions(route: string, title: string): ExerciseQuestion[] {
+  const lower = title.toLowerCase();
+  if (includesAny(lower, ["word problem", "multi-step", "real-world"])) return wordProblemQuestions(route);
+  if (includesAny(lower, ["expression", "evaluate", "equivalent expression", "numerical expression"])) return expressionQuestions(route);
+  if (includesWordAny(lower, ["probability", "odds"]) || lower.includes("compound event")) return probabilityQuestions(route);
+  if (includesWordAny(lower, ["integer"]) || includesAny(lower, ["absolute value", "opposite number"])) return integerQuestions(route);
+  if (includesWordAny(lower, ["ratio", "rate", "proportion", "scale", "percent", "discount", "tax", "interest", "markup"])) return ratioPercentQuestions(route, title);
+  if (includesAny(lower, ["pythagorean", "triangle", "angle", "line", "ray", "segment", "circle", "polygon", "similarity", "congruence", "theorem", "proof", "construct", "perpendicular", "parallel", "trigonometric"])) return geometryQuestions(route, title);
+  if (includesAny(lower, ["function", "transform", "slope", "linear", "quadratic", "parabola", "ellipse", "hyperbola", "conic", "foci", "limit", "continuous", "continuity", "derivative", "velocity", "rate of change", "intermediate-value"])) return functionQuestions(route, title);
+  return genericChoiceQuestions(route, title);
+}
+
 export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | undefined {
   if (!subjectPrefixes.some((prefix) => sourcePage.path.startsWith(prefix))) return undefined;
+  if (sourcePage.path.startsWith("/math/skill-plans/")) return undefined;
   if (sourcePage.skillSections?.length) return undefined;
   const depth = sourcePage.path.split("/").filter(Boolean).length;
   if (sourcePage.path.startsWith("/spanish/") ? depth < 2 : depth < 3) return undefined;
@@ -653,11 +843,11 @@ export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | unde
   const lower = `${route} ${title}`.toLowerCase();
   const max = maxFromRoute(route, title);
 
-  let mode = "Skill practice";
+  let mode = "Math concept review";
   let summary = "Practice this skill with short, checkable questions.";
   let questions: ExerciseQuestion[] | undefined;
 
-  if (lower.includes("clock") || lower.includes("time") || lower.includes("hour") || lower.includes("minute")) {
+  if (lower.includes("clock") || /\btime\b/.test(lower) || lower.includes("hour") || lower.includes("minute")) {
     mode = "Time";
     summary = "Practice reading clocks and matching times.";
     questions = timeQuestions(route);
@@ -665,6 +855,14 @@ export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | unde
     mode = "Number lines and charts";
     summary = "Practice locating, ordering, and counting numbers on lines and charts.";
     questions = numberLineQuestions(route, max);
+  } else if (includesAny(lower, ["right-triangle", "right triangle", "pythagorean", "trigonometric"])) {
+    mode = "Geometry reasoning";
+    summary = "Practice geometric relationships, right triangles, and angle reasoning.";
+    questions = geometryQuestions(route, title);
+  } else if (includesAny(lower, ["ruler", "inch", "centimeter", "length", "height", "area", "volume", "perimeter", "capacity", "weight", "mass"])) {
+    mode = "Measurement";
+    summary = "Practice measuring and comparing length, area, volume, weight, and capacity.";
+    questions = measurementQuestions(route, title);
   } else if (lower.includes("place-value") || lower.includes("place value") || lower.includes("expanded-form") || lower.includes("expanded form") || lower.includes("digit")) {
     mode = "Place value";
     summary = "Practice reading digits, values, models, and expanded form.";
@@ -677,7 +875,7 @@ export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | unde
     mode = "Data and graphs";
     summary = "Practice reading data displays and answering graph questions.";
     questions = dataQuestions(route);
-  } else if (lower.includes("multiplication") || lower.includes("multiply") || lower.includes("times table") || lower.includes("facts-up-to")) {
+  } else if (lower.includes("multiplication") || lower.includes("multiply") || lower.includes("times table")) {
     mode = "Multiplication";
     summary = "Practice equal groups, arrays, and multiplication facts.";
     questions = multiplicationQuestions(route);
@@ -745,14 +943,10 @@ export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | unde
     mode = "Position words";
     summary = "Practice describing where objects are.";
     questions = positionQuestions(route, title);
-  } else if (lower.includes("classify") || lower.includes("same") || lower.includes("different") || lower.includes("sort")) {
+  } else if (includesWordAny(lower, ["classify", "same", "different", "sort"])) {
     mode = "Classify and sort";
     summary = "Practice matching, sorting, and classifying objects.";
     questions = classifyQuestions(route, title);
-  } else if (["circle", "triangle", "rectangle", "square", "shape", "solid", "sphere", "cube", "cone", "cylinder", "corner", "side"].some((word) => lower.includes(word))) {
-    mode = "Shapes";
-    summary = "Practice naming and describing shapes.";
-    questions = shapeQuestions(route, title);
   } else if (["long", "short", "tall", "wide", "narrow", "light", "heavy", "holds", "capacity", "size", "weight"].some((word) => lower.includes(word))) {
     mode = "Measurement words";
     summary = "Practice comparing size, weight, and capacity.";
@@ -769,10 +963,18 @@ export function buildExerciseSet(sourcePage: SourcePageLike): ExerciseSet | unde
     mode = "Subtraction";
     summary = `Practice taking away from numbers up to ${max}.`;
     questions = subtractionQuestions(route, max);
+  } else if (["circle", "triangle", "rectangle", "square", "shape", "solid", "sphere", "cube", "cone", "cylinder", "corner", "side"].some((word) => lower.includes(word))) {
+    mode = "Shapes";
+    summary = "Practice naming and describing shapes.";
+    questions = shapeQuestions(route, title);
   } else if (lower.includes("number")) {
-    mode = "Number practice";
+    mode = "Number skills";
     summary = "Practice matching number names, numerals, and quantities.";
     questions = [...identifyNumberQuestions(route, Math.min(max, 10)), ...countObjectsQuestions(route, Math.min(max, 10))];
+  } else {
+    mode = reviewedMathMode(title);
+    summary = "Practice this reviewed math variation with short, checkable questions.";
+    questions = reviewedMathQuestions(route, title);
   }
 
   return {

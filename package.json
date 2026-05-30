@@ -5,11 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "astro dev",
-    "build": "npm run validate:content && astro check && astro build",
+    "build": "npm run validate:content && astro check && astro build && npm run validate:exercises",
     "preview": "astro preview",
     "check": "astro check",
     "discover:ixl": "node scripts/discover-public-ixl.mjs",
-    "validate:content": "node scripts/validate-content.mjs"
+    "validate:content": "node scripts/validate-content.mjs",
+    "validate:exercises": "node scripts/validate-exercises.mjs"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",
