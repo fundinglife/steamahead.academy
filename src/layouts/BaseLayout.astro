@@ -1,0 +1,99 @@
+---
+import "../styles/global.css";
+
+interface NavItem {
+  label: string;
+  href: string;
+}
+
+const { title = "SteamAhead Academy", description = "Content-driven K-12 learning platform." } = Astro.props;
+
+const primaryNav: NavItem[] = [
+  { label: "Learning", href: "/learning" },
+  { label: "Assessment", href: "/assessment" },
+  { label: "Analytics", href: "/analytics" },
+  { label: "Takeoff", href: "/core-curriculum-takeoff" },
+  { label: "Inspiration", href: "/inspiration" }
+];
+
+const subjectNav: NavItem[] = [
+  { label: "Math", href: "/math" },
+  { label: "Language arts", href: "/ela" },
+  { label: "Science", href: "/science" },
+  { label: "Social studies", href: "/social-studies" },
+  { label: "Spanish", href: "/spanish" }
+];
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+  </head>
+  <body class="font-sans">
+    <header class="sticky top-0 z-30 border-b border-slate-200 bg-white">
+      <div class="page-shell grid min-h-16 grid-cols-[auto_1fr_auto] items-center gap-5 py-3 max-md:grid-cols-2">
+        <a href="/" class="flex items-center gap-3">
+          <span class="grid size-11 place-items-center rounded-lg bg-gradient-to-br from-ocean-500 to-leaf-500 font-black text-white">SA</span>
+          <span class="leading-none">
+            <strong class="block text-xl">SteamAhead</strong>
+            <small class="text-xs font-black uppercase tracking-widest text-slate-500">Academy</small>
+          </span>
+        </a>
+        <form class="max-md:order-3 max-md:col-span-2">
+          <label class="sr-only" for="site-search">Search skills and lessons</label>
+          <input id="site-search" class="w-full rounded-full border border-slate-200 px-4 py-2.5 outline-none focus:border-ocean-500" type="search" name="q" value={Astro.url.searchParams.get("q") ?? ""} />
+        </form>
+        <nav class="flex items-center gap-3 text-sm font-extrabold text-ocean-700">
+          <a href="/signin">Sign in</a>
+          <a class="button-primary" href="/membership">Membership</a>
+        </nav>
+      </div>
+      <nav class="bg-leaf-500">
+        <div class="page-shell flex gap-1 overflow-x-auto">
+          {primaryNav.map((item) => <a class="whitespace-nowrap border-b-4 border-transparent px-4 py-3 text-sm font-black text-white hover:border-white" href={item.href}>{item.label}</a>)}
+        </div>
+      </nav>
+      <nav class="border-t border-slate-100 bg-ocean-50">
+        <div class="page-shell flex gap-1 overflow-x-auto">
+          {subjectNav.map((item) => <a class="whitespace-nowrap px-4 py-2 text-sm font-extrabold text-ocean-700 hover:bg-white" href={item.href}>{item.label}</a>)}
+        </div>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="border-t border-slate-200 bg-slate-50 py-12">
+      <div class="page-shell grid grid-cols-[1.5fr_repeat(3,1fr)] gap-8 max-lg:grid-cols-2 max-sm:grid-cols-1">
+        <section>
+          <a href="/" class="mb-4 flex items-center gap-3">
+            <span class="grid size-10 place-items-center rounded-lg bg-gradient-to-br from-ocean-500 to-leaf-500 font-black text-white">SA</span>
+            <strong>SteamAhead Academy</strong>
+          </a>
+          <p class="max-w-sm text-sm leading-6 text-slate-600">A content-driven Astro learning app with pages, concepts, lessons, skill plans, assessments, videos, games, and practice formats loaded from Markdown.</p>
+        </section>
+        <section>
+          <h2 class="mb-3 text-sm font-black">Learning</h2>
+          {subjectNav.map((item) => <a class="block py-1 text-sm text-slate-600" href={item.href}>{item.label}</a>)}
+        </section>
+        <section>
+          <h2 class="mb-3 text-sm font-black">Tools</h2>
+          <a class="block py-1 text-sm text-slate-600" href="/recommendations">Recommendations</a>
+          <a class="block py-1 text-sm text-slate-600" href="/skill-plans">Skill plans</a>
+          <a class="block py-1 text-sm text-slate-600" href="/awards">Awards</a>
+          <a class="block py-1 text-sm text-slate-600" href="/diagnostic">Diagnostic</a>
+        </section>
+        <section>
+          <h2 class="mb-3 text-sm font-black">Company</h2>
+          <a class="block py-1 text-sm text-slate-600" href="/company">Company</a>
+          <a class="block py-1 text-sm text-slate-600" href="/careers">Careers</a>
+          <a class="block py-1 text-sm text-slate-600" href="/help-center">Help center</a>
+          <a class="block py-1 text-sm text-slate-600" href="/privacy-policy">Privacy policy</a>
+        </section>
+      </div>
+    </footer>
+  </body>
+</html>

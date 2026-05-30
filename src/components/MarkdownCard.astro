@@ -1,0 +1,9 @@
+---
+const { href, title, description, label } = Astro.props;
+---
+
+<a href={href} class="content-card group block">
+  {label && <p class="mb-2 text-xs font-black uppercase tracking-widest text-leaf-700">{label}</p>}
+  <h3 class="text-xl font-black text-ocean-700 group-hover:underline">{title}</h3>
+  {description && <p class="mt-2 text-sm leading-6 text-slate-600">{description}</p>}
+</a>

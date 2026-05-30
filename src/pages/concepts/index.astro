@@ -1,0 +1,22 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import MarkdownCard from "@/components/MarkdownCard.astro";
+
+const concepts = await getCollection("concepts");
+---
+
+<BaseLayout title="Concepts | SteamAhead Academy" description="Browse Markdown-powered concept equivalents by subject, grade band, and domain.">
+  <section class="bg-ocean-50 py-12">
+    <div class="page-shell">
+      <p class="text-sm font-black uppercase tracking-widest text-leaf-700">Concept library</p>
+      <h1 class="mt-3 text-5xl font-black leading-none text-ocean-700 max-md:text-4xl">Concepts</h1>
+      <p class="mt-5 max-w-3xl text-lg leading-8 text-slate-600">Each concept is a Markdown file with subject, grade band, domain, prerequisites, teaching formats, practice types, and related concepts.</p>
+    </div>
+  </section>
+  <section class="py-12">
+    <div class="page-shell grid grid-cols-3 gap-4 max-lg:grid-cols-2 max-sm:grid-cols-1">
+      {concepts.map((concept) => <MarkdownCard href={`/concepts/${concept.slug}`} title={concept.data.title} description={concept.data.summary} label={`${concept.data.subject} · ${concept.data.gradeBand}`} />)}
+    </div>
+  </section>
+</BaseLayout>

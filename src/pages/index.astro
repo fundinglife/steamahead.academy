@@ -1,0 +1,58 @@
+---
+import { getCollection } from "astro:content";
+import BaseLayout from "@/layouts/BaseLayout.astro";
+import MarkdownCard from "@/components/MarkdownCard.astro";
+
+const pages = await getCollection("pages");
+const subjects = await getCollection("subjects");
+const lessons = await getCollection("lessons");
+const featuredPages = pages.sort((a, b) => a.data.order - b.data.order).slice(0, 8);
+const featuredLessons = lessons.slice(0, 4);
+---
+
+<BaseLayout title="SteamAhead Academy | Personalized K-12 Learning" description="Astro learning app with Markdown-powered lessons, concepts, subjects, and public pages.">
+  <section class="bg-gradient-to-b from-ocean-50 to-white py-16 text-center">
+    <div class="page-shell">
+      <p class="text-sm font-black uppercase tracking-widest text-leaf-700">Personalized K-12 learning</p>
+      <h1 class="mx-auto mt-3 max-w-4xl text-5xl font-black leading-none text-ocean-700 max-md:text-4xl">Practice, lessons, diagnostics, games, and skill plans from Markdown</h1>
+      <p class="mx-auto mt-5 max-w-2xl text-lg leading-8 text-slate-600">Every major page, subject, grade pathway, concept, and teaching format is modeled as content so the site can grow page-by-page without hardcoded lesson copy.</p>
+      <div class="mt-8 flex justify-center gap-3 max-sm:flex-col">
+        <a class="button-primary" href="/learning">Explore learning</a>
+        <a class="button-secondary" href="/concepts">Browse concepts</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-14">
+    <div class="page-shell">
+      <div class="mb-7 flex items-end justify-between gap-4 max-md:block">
+        <div>
+          <h2 class="text-3xl font-black text-ocean-700">Public page map</h2>
+          <p class="mt-2 text-slate-600">IXL-reference page titles are stored in frontmatter for cross-reference; page copy is original equivalent content.</p>
+        </div>
+        <a class="button-secondary max-md:mt-4" href="/sitemap">View sitemap</a>
+      </div>
+      <div class="grid grid-cols-4 gap-4 max-lg:grid-cols-2 max-sm:grid-cols-1">
+        {featuredPages.map((page) => <MarkdownCard href={`/${page.slug}`} title={page.data.title} description={page.data.description} label={page.data.navGroup} />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="bg-ocean-50 py-14">
+    <div class="page-shell">
+      <h2 class="text-3xl font-black text-ocean-700">Subjects</h2>
+      <div class="mt-7 grid grid-cols-5 gap-4 max-lg:grid-cols-3 max-md:grid-cols-2 max-sm:grid-cols-1">
+        {subjects.map((subject) => <MarkdownCard href={`/${subject.slug}`} title={subject.data.title} description={subject.data.description} label="Subject" />)}
+      </div>
+    </div>
+  </section>
+
+  <section class="py-14">
+    <div class="page-shell">
+      <h2 class="text-3xl font-black text-ocean-700">Featured Markdown lessons</h2>
+      <div class="mt-7 grid grid-cols-4 gap-4 max-lg:grid-cols-2 max-sm:grid-cols-1">
+        {featuredLessons.map((lesson) => <MarkdownCard href={`/lessons/${lesson.slug}`} title={lesson.data.title} description={lesson.data.objective} label={lesson.data.format} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>
