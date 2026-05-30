@@ -2,7 +2,6 @@
 import { getCollection, render } from "astro:content";
 import BaseLayout from "@/layouts/BaseLayout.astro";
 import MarkdownCard from "@/components/MarkdownCard.astro";
-import { mathPathways } from "@/data/mathPathways";
 import generatedIxl from "@/data/generated/ixlPublicPages.json";
 
 interface SourceLink {
@@ -69,9 +68,9 @@ const sourcePath = sourcePage?.path ?? `/${entry?.slug}`;
 const sourceLinks = allSourceLinks.filter((link: SourceLink) => link.path !== sourcePath && link.path.startsWith(`${sourcePath}/`)).slice(0, 24);
 const relatedConcepts = entry ? concepts.filter((concept) => concept.data.subject.toLowerCase() === title.toLowerCase() || concept.data.gradeBand.toLowerCase() === title.toLowerCase()).slice(0, 6) : [];
 const relatedLessons = entry ? lessons.filter((lesson) => lesson.data.subject.toLowerCase() === title.toLowerCase() || lesson.data.gradeBand.toLowerCase() === title.toLowerCase()).slice(0, 6) : [];
-const isMathIndex = (entry?.collection === "subjects" && entry.slug === "math") || sourcePage?.path === "/math";
 const childPathPattern = new RegExp(`^${sourcePath.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}/[^/]+$`);
-const isSubjectIndex = ["/ela", "/science", "/social-studies"].includes(sourcePath);
+const isSubjectIndex = ["/math", "/ela", "/science", "/social-studies"].includes(sourcePath);
+const isSpanishIndex = sourcePath === "/spanish";
 
 function isUsefulTitle(label: string) {
   return label.length > 1 && !label.startsWith("See all") && !["Videos", "Games", "Skills"].includes(label);
@@ -80,9 +79,11 @@ function isUsefulTitle(label: string) {
 function buildLandingGroups(links: SourceLink[]) {
   const groups = new Map<string, LandingGroup>();
   let current: LandingGroup | undefined;
+  const skippedChildPaths = new Set(["/math/lessons", "/math/videos", "/math/games", "/math/fluency-zone"]);
 
   for (const link of links) {
     if (!link.path.startsWith(`${sourcePath}/`)) continue;
+    if (skippedChildPaths.has(link.path)) continue;
 
     if (childPathPattern.test(link.path)) {
       const existing = groups.get(link.path);
@@ -174,7 +175,7 @@ const sidebarLinks = landingGroups.length
       </div>
     </section>
   )}
-  {landingGroups.length === 0 && <section class="py-12">
+  {landingGroups.length === 0 && !isSpanishIndex && <section class="py-12">
     <div class="page-shell grid grid-cols-[minmax(0,1fr)_280px] items-start gap-8 max-lg:grid-cols-1">
       <article class="prose prose-slate max-w-none prose-headings:text-ocean-700 prose-a:text-ocean-700">
         {Content && !landingGroups.length ? <Content /> : landingGroups.length ? (
@@ -201,7 +202,7 @@ const sidebarLinks = landingGroups.length
       </aside>
     </div>
   </section>}
-  {skillSections.length > 0 && (
+  {skillSections.length > 0 && !isSpanishIndex && (
     <section class="bg-white py-12">
       <div class="page-shell">
         <div class="mb-7">
@@ -234,31 +235,44 @@ const sidebarLinks = landingGroups.length
       </div>
     </section>
   )}
-  {isMathIndex && (
-    <section class="bg-slate-50 py-12">
-      <div class="page-shell">
-        <div class="mb-7">
-          <h2 class="text-3xl font-black text-ocean-700">Math by grade and course</h2>
-          <p class="mt-2 max-w-3xl text-slate-600">
-            This mirrors the public Math index structure at the grade/course level, including the public skill counts. Topic labels are original equivalents used for navigation scaffolding.
-          </p>
-        </div>
-        <div class="grid grid-cols-3 gap-4 max-lg:grid-cols-2 max-sm:grid-cols-1">
-          {mathPathways.map((pathway) => (
-            <a href={`/math/${pathway.slug}`} class="content-card block border-t-4 border-t-ocean-500">
-              <div class="flex items-start gap-3">
-                <span class="grid min-h-10 min-w-10 place-items-center rounded-md bg-ocean-500 px-2 text-sm font-black text-white">{pathway.badge}</span>
-                <div>
-                  <h3 class="text-xl font-black text-ocean-700">{pathway.title}</h3>
-                  <p class="mt-1 text-sm font-bold text-leaf-700">See all {pathway.sourceSkillCount} skills</p>
+  {skillSections.length > 0 && isSpanishIndex && (
+    <section class="bg-white py-12">
+      <div class="page-shell grid grid-cols-[minmax(0,1fr)_280px] items-start gap-8 max-lg:grid-cols-1">
+        <div>
+          <div class="mb-7">
+            <h2 class="text-3xl font-black text-ocean-700">Concept and skill breakdown</h2>
+            <p class="mt-2 max-w-3xl text-slate-600">
+              This section is generated from the discovered public page structure. Each source skill link has a local equivalent route.
+            </p>
+          </div>
+          <div class="grid gap-5">
+            {skillSections.map((section: SourceSection, sectionIndex: number) => (
+              <section class="content-card" id={`spanish-section-${sectionIndex + 1}`}>
+                <div class="mb-4 flex items-baseline gap-3">
+                  <span class="text-sm font-black text-leaf-700">{section.code}</span>
+                  <h3 class="text-2xl font-black text-ocean-700">{section.title}</h3>
+                  <span class="rounded-full bg-ocean-50 px-3 py-1 text-xs font-black text-ocean-700">{section.skills.length} skills</span>
                 </div>
-              </div>
-              <p class="mt-4 text-sm leading-6 text-slate-600">
-                Includes: {pathway.equivalentSampleTopics.join(" · ")}
-              </p>
-            </a>
-          ))}
+                <ol class="grid grid-cols-2 gap-2 max-md:grid-cols-1">
+                  {section.skills.map((skill: SourceLink, index: number) => (
+                    <li>
+                      <a class="flex gap-3 rounded-md border border-slate-200 bg-slate-50 p-3 text-sm font-bold text-ocean-700 hover:border-ocean-500 hover:bg-white" href={skill.path}>
+                        <span class="text-slate-400">{index + 1}.</span>
+                        <span>{skill.label}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            ))}
+          </div>
         </div>
+        <aside class="sticky top-40 rounded-lg border border-slate-200 bg-white p-4 shadow-sm max-lg:static">
+          <h2 class="text-sm font-black uppercase tracking-widest text-leaf-700">Page links</h2>
+          <nav class="mt-3 grid gap-1 text-sm font-bold">
+            {skillSections.map((section: SourceSection, sectionIndex: number) => <a class="rounded-md px-3 py-2 text-ocean-700 hover:bg-ocean-50" href={`#spanish-section-${sectionIndex + 1}`}>{sectionIndex + 1}. {section.title}</a>)}
+          </nav>
+        </aside>
       </div>
     </section>
   )}
